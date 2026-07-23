@@ -1,0 +1,120 @@
+// Strent database schema
+// Postgres. Run `npx prisma migrate dev` after setting DATABASE_URL.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  TENANT
+  LANDLORD
+  ADMIN
+}
+
+enum ListingStatus {
+  AVAILABLE
+  BOOKED
+  UNAVAILABLE
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  role         Role     @default(TENANT)
+  verified     Boolean  @default(false) // landlord ID/ownership check passed
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+
+  listings      Listing[]      @relation("LandlordListings")
+  conversations Conversation[] @relation("TenantConversations")
+  messages      Message[]
+  bookings      Booking[]      @relation("TenantBookings")
+}
+
+model Listing {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  price       Int // monthly rent, in KES
+  bedrooms    Int
+  bathrooms   Int
+  address     String
+  latitude    Float
+  longitude   Float
+  status      ListingStatus @default(AVAILABLE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  landlordId String
+  landlord   User   @relation("LandlordListings", fields: [landlordId], references: [id])
+
+  images        ListingImage[]
+  conversations Conversation[]
+  bookings      Booking[]
+
+  @@index([latitude, longitude])
+  @@index([status])
+}
+
+model ListingImage {
+  id        String  @id @default(cuid())
+  url       String
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+// One thread per (listing, tenant) pair
+model Conversation {
+  id        String   @id @default(cuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  tenantId  String
+  tenant    User     @relation("TenantConversations", fields: [tenantId], references: [id])
+  messages  Message[]
+  createdAt DateTime @default(now())
+
+  @@unique([listingId, tenantId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id])
+  content        String
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+// Created once tenant + landlord agree in chat; tracks the payment/handshake
+model Booking {
+  id            String        @id @default(cuid())
+  listingId     String
+  listing       Listing       @relation(fields: [listingId], references: [id])
+  tenantId      String
+  tenant        User          @relation("TenantBookings", fields: [tenantId], references: [id])
+  status        BookingStatus @default(PENDING)
+  amount        Int // agreed amount, KES
+  mpesaReceipt  String? // set once payment confirmed via Daraja callback
+  moveInDate    DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
