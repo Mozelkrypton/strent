@@ -1,35 +1,37 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { ListingSummary } from "@/types";
+import Stamp from "@/components/Stamp";
 
 export default function ListingCard({ listing }: { listing: ListingSummary }) {
   return (
     <Link
       href={`/listings/${listing.id}`}
-      className="group block overflow-hidden rounded-xl border border-neutral-200 bg-white transition hover:shadow-md"
+      className="group block overflow-hidden border-2 border-ink bg-paper transition hover:shadow-[4px_4px_0_0_#211D16]"
     >
-      <div className="relative h-44 w-full bg-neutral-100">
+      <div className="relative h-44 w-full bg-mute/20">
         {listing.coverImageUrl ? (
           <Image
             src={listing.coverImageUrl}
             alt={listing.title}
             fill
-            className="object-cover transition group-hover:scale-105"
+            className="object-cover"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-sm text-neutral-400">
+          <div className="flex h-full items-center justify-center text-sm text-mute">
             No photo yet
           </div>
         )}
+        <Stamp className="absolute -top-1 left-3" />
       </div>
       <div className="p-4">
-        <p className="font-medium text-neutral-900">{listing.title}</p>
-        <p className="text-sm text-neutral-500">{listing.address}</p>
-        <div className="mt-2 flex items-center justify-between text-sm">
-          <span className="font-semibold text-brand-600">
+        <p className="font-display text-lg font-semibold text-ink">{listing.title}</p>
+        <p className="text-sm text-mute">{listing.address}</p>
+        <div className="mt-2 flex items-center justify-between">
+          <span className="font-mono text-sm font-semibold text-clay">
             KES {listing.price.toLocaleString()}/mo
           </span>
-          <span className="text-neutral-500">
+          <span className="text-sm text-mute">
             {listing.bedrooms} bd · {listing.bathrooms} ba
           </span>
         </div>

@@ -2,15 +2,22 @@ import Link from "next/link";
 
 export default function Navbar() {
   return (
-    <header className="border-b border-neutral-200 bg-white">
+    <header className="border-b-2 border-ink bg-paper">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <Link href="/" className="text-lg font-semibold tracking-tight text-brand-600">
+        <Link href="/" className="font-display text-2xl italic font-bold tracking-tight text-clay">
           strent
         </Link>
-        <nav className="flex items-center gap-6 text-sm text-neutral-600">
-          <Link href="/">Browse</Link>
-          <Link href="/dashboard/listings/new">List a house</Link>
-          <Link href="/login" className="rounded-md bg-brand-500 px-3 py-1.5 text-white">
+        <nav className="flex items-center gap-6 text-sm text-ink">
+          <Link href="/" className="hover:text-clay">
+            Browse
+          </Link>
+          <Link href="/dashboard/listings/new" className="hover:text-clay">
+            List a house
+          </Link>
+          <Link
+            href="/login"
+            className="border-2 border-ink bg-clay px-3 py-1.5 font-medium text-paper shadow-[2px_2px_0_0_#211D16] transition hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
+          >
             Sign in
           </Link>
         </nav>
