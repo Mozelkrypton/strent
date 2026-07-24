@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import ImageUploader from "@/components/ImageUploader";
 
 export default function NewListingPage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function NewListingPage() {
     latitude: "",
     longitude: ""
   });
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [error, setError] = useState("");
 
   function update(field: string, value: string) {
@@ -24,6 +26,10 @@ export default function NewListingPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    if (imageUrls.length === 0) {
+      setError("Add at least one photo — listings without photos get far less interest.");
+      return;
+    }
     const res = await fetch("/api/listings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -33,7 +39,8 @@ export default function NewListingPage() {
         bedrooms: Number(form.bedrooms),
         bathrooms: Number(form.bathrooms),
         latitude: Number(form.latitude),
-        longitude: Number(form.longitude)
+        longitude: Number(form.longitude),
+        imageUrls
       })
     });
     if (res.ok) {
@@ -48,11 +55,20 @@ export default function NewListingPage() {
   return (
     <div className="mx-auto max-w-xl px-4 py-10">
       <h1 className="text-xl font-semibold">List a house</h1>
-      <p className="mt-1 text-sm text-neutral-500">
-        You must be signed in as a landlord. Photo upload wires up to Cloudinary — add that
-        piece next; for now paste image URLs directly in the API request.
-      </p>
+      <p className="mt-1 text-sm text-neutral-500">You must be signed in as a landlord.</p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <div>
+          <label className="mb-2 block text-sm font-medium text-neutral-700">Photos</label>
+          <ImageUploader onUploaded={(urls) => setImageUrls((prev) => [...prev, ...urls])} />
+          {imageUrls.length > 0 && (
+            <div className="mt-3 grid grid-cols-4 gap-2">
+              {imageUrls.map((url) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={url} src={url} alt="" className="h-16 w-full rounded object-cover" />
+              ))}
+            </div>
+          )}
+        </div>
         <input
           required
           placeholder="Title (e.g. 2BR apartment in Ruaka)"
