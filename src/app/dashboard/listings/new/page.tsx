@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "@/components/ImageUploader";
+import LocationPicker from "@/components/LocationPicker";
 
 export default function NewListingPage() {
   const router = useRouter();
@@ -11,11 +12,9 @@ export default function NewListingPage() {
     description: "",
     price: "",
     bedrooms: "1",
-    bathrooms: "1",
-    address: "",
-    latitude: "",
-    longitude: ""
+    bathrooms: "1"
   });
+  const [location, setLocation] = useState<{ latitude: number; longitude: number; address: string } | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [error, setError] = useState("");
 
@@ -23,11 +22,20 @@ export default function NewListingPage() {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
+  const handleLocationChange = useCallback(
+    (loc: { latitude: number; longitude: number; address: string }) => setLocation(loc),
+    []
+  );
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     if (imageUrls.length === 0) {
       setError("Add at least one photo — listings without photos get far less interest.");
+      return;
+    }
+    if (!location) {
+      setError("Search or click the map to set the building's location.");
       return;
     }
     const res = await fetch("/api/listings", {
@@ -38,8 +46,9 @@ export default function NewListingPage() {
         price: Number(form.price),
         bedrooms: Number(form.bedrooms),
         bathrooms: Number(form.bathrooms),
-        latitude: Number(form.latitude),
-        longitude: Number(form.longitude),
+        address: location.address || "Pinned location",
+        latitude: location.latitude,
+        longitude: location.longitude,
         imageUrls
       })
     });
@@ -108,28 +117,9 @@ export default function NewListingPage() {
             className="border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
           />
         </div>
-        <input
-          required
-          placeholder="Address"
-          value={form.address}
-          onChange={(e) => update("address", e.target.value)}
-          className="w-full border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
-        />
-        <div className="grid grid-cols-2 gap-2">
-          <input
-            required
-            placeholder="Latitude"
-            value={form.latitude}
-            onChange={(e) => update("latitude", e.target.value)}
-            className="border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
-          />
-          <input
-            required
-            placeholder="Longitude"
-            value={form.longitude}
-            onChange={(e) => update("longitude", e.target.value)}
-            className="border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
-          />
+        <div>
+          <label className="mb-2 block text-sm font-medium text-ink">Building location</label>
+          <LocationPicker onChange={handleLocationChange} />
         </div>
         {error && <p className="text-sm text-clay font-medium">{error}</p>}
         <button className="w-full border-2 border-ink bg-clay px-4 py-2 text-sm font-medium text-paper shadow-[2px_2px_0_0_#211D16] transition hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none">
