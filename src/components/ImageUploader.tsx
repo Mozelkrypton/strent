@@ -65,7 +65,7 @@ export default function ImageUploader({ onUploaded }: UploaderProps) {
           e.preventDefault();
           if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
         }}
-        className="cursor-pointer rounded-lg border-2 border-dashed border-neutral-300 p-6 text-center text-sm text-neutral-500 hover:border-brand-400 hover:text-brand-500"
+        className="cursor-pointer border-2 border-dashed border-ink p-6 text-center text-sm text-mute hover:border-clay hover:text-clay"
       >
         Drag photos here, or click to choose files
         <input
@@ -79,7 +79,7 @@ export default function ImageUploader({ onUploaded }: UploaderProps) {
       </div>
 
       {items.length > 0 && (
-        <ul className="mt-3 space-y-1 text-xs text-neutral-500">
+        <ul className="mt-3 space-y-1 text-xs text-mute">
           {items.map((it) => (
             <li key={it.name} className="flex items-center gap-2">
               <span
@@ -88,7 +88,7 @@ export default function ImageUploader({ onUploaded }: UploaderProps) {
                     ? "text-green-600"
                     : it.status === "error"
                       ? "text-red-600"
-                      : "text-neutral-400"
+                      : "text-mute/60"
                 }
               >
                 {it.status === "done" ? "✓" : it.status === "error" ? "✕" : "…"}

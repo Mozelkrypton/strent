@@ -16,7 +16,7 @@ export default function MapView({ latitude, longitude, label }: MapViewProps) {
 
   if (!src) {
     return (
-      <div className="flex h-64 w-full items-center justify-center rounded-lg bg-neutral-100 text-sm text-neutral-500">
+      <div className="flex h-64 w-full items-center justify-center rounded-lg bg-mute/10 text-sm text-mute">
         Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to show the map
       </div>
     );
@@ -26,7 +26,7 @@ export default function MapView({ latitude, longitude, label }: MapViewProps) {
     <iframe
       title="Listing location"
       src={src}
-      className="h-64 w-full rounded-lg border border-neutral-200"
+      className="h-64 w-full border-2 border-ink"
       loading="lazy"
       referrerPolicy="no-referrer-when-downgrade"
     />

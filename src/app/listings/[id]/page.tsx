@@ -1,141 +1,63 @@
-"use client";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import MapView from "@/components/MapView";
+import type { ListingDetail } from "@/types";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import ImageUploader from "@/components/ImageUploader";
+async function getListing(id: string): Promise<ListingDetail | null> {
+  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+  const res = await fetch(`${base}/api/listings/${id}`, { cache: "no-store" });
+  if (!res.ok) return null;
+  return res.json();
+}
 
-export default function NewListingPage() {
-  const router = useRouter();
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    price: "",
-    bedrooms: "1",
-    bathrooms: "1",
-    address: "",
-    latitude: "",
-    longitude: ""
-  });
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
-  const [error, setError] = useState("");
-
-  function update(field: string, value: string) {
-    setForm((f) => ({ ...f, [field]: value }));
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    if (imageUrls.length === 0) {
-      setError("Add at least one photo — listings without photos get far less interest.");
-      return;
-    }
-    const res = await fetch("/api/listings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...form,
-        price: Number(form.price),
-        bedrooms: Number(form.bedrooms),
-        bathrooms: Number(form.bathrooms),
-        latitude: Number(form.latitude),
-        longitude: Number(form.longitude),
-        imageUrls
-      })
-    });
-    if (res.ok) {
-      const listing = await res.json();
-      router.push(`/listings/${listing.id}`);
-    } else {
-      const data = await res.json();
-      setError(data.error ?? "Something went wrong");
-    }
-  }
+export default async function ListingDetailPage({ params }: { params: { id: string } }) {
+  const listing = await getListing(params.id);
+  if (!listing) notFound();
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-10">
-      <h1 className="text-xl font-semibold">List a house</h1>
-      <p className="mt-1 text-sm text-neutral-500">You must be signed in as a landlord.</p>
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <div>
-          <label className="mb-2 block text-sm font-medium text-neutral-700">Photos</label>
-          <ImageUploader onUploaded={(urls) => setImageUrls((prev) => [...prev, ...urls])} />
-          {imageUrls.length > 0 && (
-            <div className="mt-3 grid grid-cols-4 gap-2">
-              {imageUrls.map((url) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img key={url} src={url} alt="" className="h-16 w-full rounded object-cover" />
-              ))}
+    <div className="mx-auto max-w-4xl px-4 py-10">
+      <h1 className="font-display text-3xl font-bold text-ink">{listing.title}</h1>
+      <p className="text-mute">{listing.address}</p>
+
+      {listing.images.length > 0 && (
+        <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {listing.images.map((img) => (
+            <div key={img.id} className="relative h-40 overflow-hidden border-2 border-ink bg-mute/20">
+              <Image src={img.url} alt={listing.title} fill className="object-cover" />
             </div>
-          )}
+          ))}
         </div>
-        <input
-          required
-          placeholder="Title (e.g. 2BR apartment in Ruaka)"
-          value={form.title}
-          onChange={(e) => update("title", e.target.value)}
-          className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
-        />
-        <textarea
-          required
-          placeholder="Description"
-          value={form.description}
-          onChange={(e) => update("description", e.target.value)}
-          rows={4}
-          className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
-        />
-        <div className="grid grid-cols-3 gap-2">
-          <input
-            required
-            type="number"
-            placeholder="Rent (KES)"
-            value={form.price}
-            onChange={(e) => update("price", e.target.value)}
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
-          />
-          <input
-            type="number"
-            placeholder="Bedrooms"
-            value={form.bedrooms}
-            onChange={(e) => update("bedrooms", e.target.value)}
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
-          />
-          <input
-            type="number"
-            placeholder="Bathrooms"
-            value={form.bathrooms}
-            onChange={(e) => update("bathrooms", e.target.value)}
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
-          />
+      )}
+
+      <div className="mt-6 flex items-center justify-between border-2 border-ink bg-white p-4">
+        <div>
+          <p className="font-mono text-xl font-semibold text-clay">
+            KES {listing.price.toLocaleString()}/mo
+          </p>
+          <p className="text-sm text-mute">
+            {listing.bedrooms} bed · {listing.bathrooms} bath
+          </p>
         </div>
-        <input
-          required
-          placeholder="Address"
-          value={form.address}
-          onChange={(e) => update("address", e.target.value)}
-          className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
-        />
-        <div className="grid grid-cols-2 gap-2">
-          <input
-            required
-            placeholder="Latitude"
-            value={form.latitude}
-            onChange={(e) => update("latitude", e.target.value)}
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
-          />
-          <input
-            required
-            placeholder="Longitude"
-            value={form.longitude}
-            onChange={(e) => update("longitude", e.target.value)}
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
-          />
-        </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button className="w-full rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white">
-          Publish listing
-        </button>
-      </form>
+        <span className="border-2 border-ink bg-leaf px-3 py-1 text-sm font-medium text-paper">
+          {listing.status === "AVAILABLE" ? "Available now" : listing.status}
+        </span>
+      </div>
+
+      <p className="mt-6 whitespace-pre-line text-ink/90">{listing.description}</p>
+
+      <h2 className="mt-8 font-display text-lg font-semibold text-ink">Location</h2>
+      <div className="mt-2">
+        <MapView latitude={listing.latitude} longitude={listing.longitude} label={listing.title} />
+      </div>
+
+      <h2 className="mt-8 font-display text-lg font-semibold text-ink">
+        Landlord: {listing.landlord.name} {listing.landlord.verified && "· Verified ✓"}
+      </h2>
+      <p className="mt-1 text-sm text-mute">
+        Sign in as a tenant to message this landlord about viewing, price, or booking.
+      </p>
+      {/* Once signed in, this becomes: create a Conversation via POST /api/conversations,
+          then render <ChatPanel conversationId={...} /> here. */}
     </div>
   );
 }

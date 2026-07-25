@@ -37,26 +37,26 @@ export default function ChatPanel({ conversationId }: { conversationId: string }
   }
 
   return (
-    <div className="flex h-96 flex-col rounded-lg border border-neutral-200 bg-white">
+    <div className="flex h-96 flex-col border-2 border-ink bg-white">
       <div className="flex-1 space-y-2 overflow-y-auto p-4">
         {messages.map((m) => (
-          <div key={m.id} className="max-w-[75%] rounded-lg bg-neutral-100 px-3 py-2 text-sm">
+          <div key={m.id} className="max-w-[75%] bg-mustard/20 border border-ink/20 px-3 py-2 text-sm">
             {m.content}
           </div>
         ))}
         <div ref={bottomRef} />
       </div>
-      <div className="flex gap-2 border-t border-neutral-200 p-3">
+      <div className="flex gap-2 border-t-2 border-ink p-3">
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           placeholder="Message about payment, viewing, or booking..."
-          className="flex-1 rounded-md border border-neutral-300 px-3 py-2 text-sm"
+          className="flex-1 border-2 border-ink px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
         />
         <button
           onClick={sendMessage}
-          className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white"
+          className="border-2 border-ink bg-clay px-4 py-2 text-sm font-medium text-paper"
         >
           Send
         </button>

@@ -8,14 +8,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: "#f2f7f5",
-          100: "#dcece5",
-          400: "#3f9c7d",
-          500: "#237a5c",
-          600: "#18604a",
-          900: "#0e3a2e"
-        }
+        paper: "#F1ECDD",
+        ink: "#211D16",
+        clay: {
+          DEFAULT: "#B54A2C",
+          dark: "#8F3A21"
+        },
+        mustard: "#E3A73A",
+        leaf: "#4C6B4F",
+        mute: "#8C8272"
+      },
+      fontFamily: {
+        display: ["var(--font-fraunces)", "serif"],
+        body: ["var(--font-work-sans)", "sans-serif"],
+        mono: ["var(--font-plex-mono)", "monospace"]
       }
     }
   },

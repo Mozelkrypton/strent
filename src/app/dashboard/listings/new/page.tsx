@@ -54,11 +54,11 @@ export default function NewListingPage() {
 
   return (
     <div className="mx-auto max-w-xl px-4 py-10">
-      <h1 className="text-xl font-semibold">List a house</h1>
-      <p className="mt-1 text-sm text-neutral-500">You must be signed in as a landlord.</p>
+      <h1 className="font-display text-xl font-bold text-ink">List a house</h1>
+      <p className="mt-1 text-sm text-mute">You must be signed in as a landlord.</p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div>
-          <label className="mb-2 block text-sm font-medium text-neutral-700">Photos</label>
+          <label className="mb-2 block text-sm font-medium text-ink">Photos</label>
           <ImageUploader onUploaded={(urls) => setImageUrls((prev) => [...prev, ...urls])} />
           {imageUrls.length > 0 && (
             <div className="mt-3 grid grid-cols-4 gap-2">
@@ -74,7 +74,7 @@ export default function NewListingPage() {
           placeholder="Title (e.g. 2BR apartment in Ruaka)"
           value={form.title}
           onChange={(e) => update("title", e.target.value)}
-          className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
+          className="w-full border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
         />
         <textarea
           required
@@ -82,7 +82,7 @@ export default function NewListingPage() {
           value={form.description}
           onChange={(e) => update("description", e.target.value)}
           rows={4}
-          className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
+          className="w-full border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
         />
         <div className="grid grid-cols-3 gap-2">
           <input
@@ -91,21 +91,21 @@ export default function NewListingPage() {
             placeholder="Rent (KES)"
             value={form.price}
             onChange={(e) => update("price", e.target.value)}
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            className="border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
           />
           <input
             type="number"
             placeholder="Bedrooms"
             value={form.bedrooms}
             onChange={(e) => update("bedrooms", e.target.value)}
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            className="border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
           />
           <input
             type="number"
             placeholder="Bathrooms"
             value={form.bathrooms}
             onChange={(e) => update("bathrooms", e.target.value)}
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            className="border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
           />
         </div>
         <input
@@ -113,7 +113,7 @@ export default function NewListingPage() {
           placeholder="Address"
           value={form.address}
           onChange={(e) => update("address", e.target.value)}
-          className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm"
+          className="w-full border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
         />
         <div className="grid grid-cols-2 gap-2">
           <input
@@ -121,18 +121,18 @@ export default function NewListingPage() {
             placeholder="Latitude"
             value={form.latitude}
             onChange={(e) => update("latitude", e.target.value)}
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            className="border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
           />
           <input
             required
             placeholder="Longitude"
             value={form.longitude}
             onChange={(e) => update("longitude", e.target.value)}
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm"
+            className="border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
           />
         </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <button className="w-full rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white">
+        {error && <p className="text-sm text-clay font-medium">{error}</p>}
+        <button className="w-full border-2 border-ink bg-clay px-4 py-2 text-sm font-medium text-paper shadow-[2px_2px_0_0_#211D16] transition hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none">
           Publish listing
         </button>
       </form>
