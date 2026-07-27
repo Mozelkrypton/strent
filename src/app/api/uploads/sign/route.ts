@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
-import { verifySession } from "@/lib/auth";
+import { getSessionUser } from "@/lib/security/currentUser";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -11,8 +11,7 @@ cloudinary.config({
 // POST /api/uploads/sign — returns a signature so the browser can upload straight to
 // Cloudinary without the file ever passing through our server (faster, cheaper).
 export async function POST(req: NextRequest) {
-  const token = req.cookies.get("strent_session")?.value;
-  const session = token ? verifySession(token) : null;
+  const session = await getSessionUser(req);
 
   if (!session || session.role !== "LANDLORD") {
     return NextResponse.json({ error: "Only landlords can upload listing photos" }, { status: 403 });

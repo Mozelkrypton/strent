@@ -11,19 +11,24 @@ export async function verifyPassword(plain: string, hash: string) {
   return bcrypt.compare(plain, hash);
 }
 
-export type SessionPayload = {
-  userId: string;
-  role: "TENANT" | "LANDLORD" | "ADMIN";
-};
+export type Role = "TENANT" | "LANDLORD" | "ADMIN";
 
-export function signSession(payload: SessionPayload) {
+// --- Short-lived "password already checked, waiting on 2FA code" challenge ---
+// Deliberately NOT a session: 5-minute expiry, single purpose, never touches
+// the Session table. A real session is only created once the 2FA code checks out.
+type TwoFactorChallengePayload = { userId: string; purpose: "2fa_challenge" };
+
+export function signTwoFactorChallenge(userId: string): string {
   if (!JWT_SECRET) throw new Error("JWT_SECRET is not set");
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+  const payload: TwoFactorChallengePayload = { userId, purpose: "2fa_challenge" };
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: "5m" });
 }
 
-export function verifySession(token: string): SessionPayload | null {
+export function verifyTwoFactorChallenge(token: string): { userId: string } | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as SessionPayload;
+    const payload = jwt.verify(token, JWT_SECRET) as TwoFactorChallengePayload;
+    if (payload.purpose !== "2fa_challenge") return null;
+    return { userId: payload.userId };
   } catch {
     return null;
   }

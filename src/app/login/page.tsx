@@ -1,63 +1,82 @@
-import Image from "next/image";
-import { notFound } from "next/navigation";
-import MapView from "@/components/MapView";
-import type { ListingDetail } from "@/types";
+"use client";
 
-async function getListing(id: string): Promise<ListingDetail | null> {
-  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
-  const res = await fetch(`${base}/api/listings/${id}`, { cache: "no-store" });
-  if (!res.ok) return null;
-  return res.json();
-}
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import TextField from "@/components/TextField";
+import Button from "@/components/Button";
 
-export default async function ListingDetailPage({ params }: { params: { id: string } }) {
-  const listing = await getListing(params.id);
-  if (!listing) notFound();
+export default function LoginPage() {
+  const router = useRouter();
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  function update(field: string, value: string) {
+    setForm((f) => ({ ...f, [field]: value }));
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        if (data.twoFactorRequired) {
+          router.push(`/login/2fa?challenge=${encodeURIComponent(data.challengeToken)}`);
+          return;
+        }
+        router.push("/");
+        router.refresh();
+      } else {
+        setError(data.error ?? "Something went wrong");
+      }
+    } catch {
+      setError("Network error — please try again");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="font-display text-3xl font-bold text-ink">{listing.title}</h1>
-      <p className="text-mute">{listing.address}</p>
-
-      {listing.images.length > 0 && (
-        <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {listing.images.map((img) => (
-            <div key={img.id} className="relative h-40 overflow-hidden border-2 border-ink bg-mute/20">
-              <Image src={img.url} alt={listing.title} fill className="object-cover" />
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="mt-6 flex items-center justify-between border-2 border-ink bg-white p-4">
-        <div>
-          <p className="font-mono text-xl font-semibold text-clay">
-            KES {listing.price.toLocaleString()}/mo
-          </p>
-          <p className="text-sm text-mute">
-            {listing.bedrooms} bed · {listing.bathrooms} bath
-          </p>
-        </div>
-        <span className="border-2 border-ink bg-leaf px-3 py-1 text-sm font-medium text-paper">
-          {listing.status === "AVAILABLE" ? "Available now" : listing.status}
-        </span>
+    <div className="mx-auto max-w-sm px-4 py-16">
+      <h1 className="font-display text-xl font-bold text-ink">Sign in</h1>
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <TextField
+          type="email"
+          required
+          autoComplete="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={(e) => update("email", e.target.value)}
+        />
+        <TextField
+          type="password"
+          required
+          autoComplete="current-password"
+          placeholder="Password"
+          value={form.password}
+          onChange={(e) => update("password", e.target.value)}
+        />
+        {error && <p className="text-sm text-clay font-medium">{error}</p>}
+        <Button disabled={loading} className="w-full">
+          {loading ? "Signing in…" : "Sign in"}
+        </Button>
+      </form>
+      <div className="mt-4 flex justify-between text-sm text-mute">
+        <Link href="/forgot-password" className="hover:text-clay">
+          Forgot password?
+        </Link>
+        <Link href="/register" className="hover:text-clay">
+          Create an account
+        </Link>
       </div>
-
-      <p className="mt-6 whitespace-pre-line text-ink/90">{listing.description}</p>
-
-      <h2 className="mt-8 font-display text-lg font-semibold text-ink">Location</h2>
-      <div className="mt-2">
-        <MapView latitude={listing.latitude} longitude={listing.longitude} label={listing.title} />
-      </div>
-
-      <h2 className="mt-8 font-display text-lg font-semibold text-ink">
-        Landlord: {listing.landlord.name} {listing.landlord.verified && "· Verified ✓"}
-      </h2>
-      <p className="mt-1 text-sm text-mute">
-        Sign in as a tenant to message this landlord about viewing, price, or booking.
-      </p>
-      {/* Once signed in, this becomes: create a Conversation via POST /api/conversations,
-          then render <ChatPanel conversationId={...} /> here. */}
     </div>
   );
 }

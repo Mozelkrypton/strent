@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifySession } from "@/lib/auth";
+import { getSessionUser } from "@/lib/security/currentUser";
 
 // GET /api/messages?conversationId=...
 export async function GET(req: NextRequest) {
-  const token = req.cookies.get("strent_session")?.value;
-  const session = token ? verifySession(token) : null;
+  const session = await getSessionUser(req);
   if (!session) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   const conversationId = req.nextUrl.searchParams.get("conversationId");
@@ -23,8 +22,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/messages { conversationId, content }
 export async function POST(req: NextRequest) {
-  const token = req.cookies.get("strent_session")?.value;
-  const session = token ? verifySession(token) : null;
+  const session = await getSessionUser(req);
   if (!session) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   const { conversationId, content } = await req.json();

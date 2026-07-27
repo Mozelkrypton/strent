@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifySession } from "@/lib/auth";
+import { getSessionUser } from "@/lib/security/currentUser";
 
 // POST /api/conversations { listingId } — tenant starts (or reopens) a chat with a landlord
 export async function POST(req: NextRequest) {
-  const token = req.cookies.get("strent_session")?.value;
-  const session = token ? verifySession(token) : null;
+  const session = await getSessionUser(req);
 
   if (!session || session.role !== "TENANT") {
     return NextResponse.json({ error: "Only tenants can start a conversation" }, { status: 403 });
@@ -27,8 +26,7 @@ export async function POST(req: NextRequest) {
 
 // GET /api/conversations — list the current user's threads (tenant view)
 export async function GET(req: NextRequest) {
-  const token = req.cookies.get("strent_session")?.value;
-  const session = token ? verifySession(token) : null;
+  const session = await getSessionUser(req);
   if (!session) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   const conversations = await prisma.conversation.findMany({

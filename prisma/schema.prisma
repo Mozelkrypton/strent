@@ -38,12 +38,82 @@ model User {
   role         Role     @default(TENANT)
   verified     Boolean  @default(false) // landlord ID/ownership check passed
   avatarUrl    String?
+  bio          String?
   createdAt    DateTime @default(now())
 
-  listings      Listing[]      @relation("LandlordListings")
-  conversations Conversation[] @relation("TenantConversations")
-  messages      Message[]
-  bookings      Booking[]      @relation("TenantBookings")
+  // --- account security ---
+  emailVerified        Boolean   @default(false)
+  failedLoginAttempts  Int       @default(0)
+  lockedUntil          DateTime? // set when too many failed attempts; login blocked until this passes
+  twoFactorEnabled     Boolean   @default(false)
+  twoFactorSecret      String? // TOTP secret, only set once 2FA is enabled
+  twoFactorBackupCodes String[] @default([]) // hashed one-time backup codes
+
+  listings              Listing[]              @relation("LandlordListings")
+  conversations         Conversation[]         @relation("TenantConversations")
+  messages              Message[]
+  bookings              Booking[]              @relation("TenantBookings")
+  sessions              Session[]
+  emailVerificationTokens EmailVerificationToken[]
+  passwordResetTokens   PasswordResetToken[]
+  loginEvents           LoginEvent[]
+}
+
+// One row per signed-in device/browser. Cookie holds the plain token;
+// only its hash is stored, so a leaked DB dump can't be replayed.
+model Session {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String    @unique
+  userAgent  String?
+  ipAddress  String?
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime  @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+
+  @@index([userId])
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// Audit trail: every login attempt, success or failure.
+model LoginEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  email     String // the email that was attempted, even if it didn't match a user
+  success   Boolean
+  reason    String? // e.g. "invalid_password", "locked_out", "bad_2fa_code"
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([email])
 }
 
 model Listing {
@@ -61,7 +131,7 @@ model Listing {
   updatedAt   DateTime      @updatedAt
 
   landlordId String
-  landlord   User   @relation("LandlordListings", fields: [landlordId], references: [id])
+  landlord   User   @relation("LandlordListings", fields: [landlordId], references: [id], onDelete: Cascade)
 
   images        ListingImage[]
   conversations Conversation[]
@@ -84,7 +154,7 @@ model Conversation {
   listingId String
   listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
   tenantId  String
-  tenant    User     @relation("TenantConversations", fields: [tenantId], references: [id])
+  tenant    User     @relation("TenantConversations", fields: [tenantId], references: [id], onDelete: Cascade)
   messages  Message[]
   createdAt DateTime @default(now())
 
@@ -96,7 +166,7 @@ model Message {
   conversationId String
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   senderId       String
-  sender         User         @relation(fields: [senderId], references: [id])
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
   content        String
   readAt         DateTime?
   createdAt      DateTime     @default(now())
@@ -108,9 +178,9 @@ model Message {
 model Booking {
   id            String        @id @default(cuid())
   listingId     String
-  listing       Listing       @relation(fields: [listingId], references: [id])
+  listing       Listing       @relation(fields: [listingId], references: [id], onDelete: Cascade)
   tenantId      String
-  tenant        User          @relation("TenantBookings", fields: [tenantId], references: [id])
+  tenant        User          @relation("TenantBookings", fields: [tenantId], references: [id], onDelete: Cascade)
   status        BookingStatus @default(PENDING)
   amount        Int // agreed amount, KES
   mpesaReceipt  String? // set once payment confirmed via Daraja callback

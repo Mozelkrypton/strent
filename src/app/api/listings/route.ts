@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifySession } from "@/lib/auth";
+import { getSessionUser } from "@/lib/security/currentUser";
 
 // GET /api/listings?minPrice=&maxPrice=&bedrooms=&lat=&lng=&radiusKm=
 export async function GET(req: NextRequest) {
@@ -37,8 +37,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/listings — landlord creates a listing
 export async function POST(req: NextRequest) {
-  const token = req.cookies.get("strent_session")?.value;
-  const session = token ? verifySession(token) : null;
+  const session = await getSessionUser(req);
 
   if (!session || session.role !== "LANDLORD") {
     return NextResponse.json({ error: "Only landlords can create listings" }, { status: 403 });
