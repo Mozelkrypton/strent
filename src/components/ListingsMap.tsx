@@ -54,19 +54,11 @@ export default function ListingsMap({ listings }: { listings: ListingSummary[] }
 
   if (status === "error") {
     return (
-<<<<<<< HEAD
-      <div className="flex h-96 items-center justify-center border-2 border-ink bg-mute/10 text-sm text-mute">
-=======
       <div className="flex h-96 items-center justify-center rounded-2xl border border-ink/10 bg-mute/10 text-sm text-mute">
->>>>>>> master
         Map view needs NEXT_PUBLIC_GOOGLE_MAPS_API_KEY set to work.
       </div>
     );
   }
 
-<<<<<<< HEAD
-  return <div ref={mapRef} className="h-96 w-full border-2 border-ink" />;
-=======
   return <div ref={mapRef} className="h-96 w-full overflow-hidden rounded-2xl border border-ink/10 shadow-soft" />;
->>>>>>> master
 }

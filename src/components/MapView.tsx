@@ -26,11 +26,7 @@ export default function MapView({ latitude, longitude, label }: MapViewProps) {
     <iframe
       title="Listing location"
       src={src}
-<<<<<<< HEAD
-      className="h-64 w-full border-2 border-ink"
-=======
       className="h-64 w-full overflow-hidden rounded-2xl border border-ink/10 shadow-soft"
->>>>>>> master
       loading="lazy"
       referrerPolicy="no-referrer-when-downgrade"
     />

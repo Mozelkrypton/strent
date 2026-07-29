@@ -7,11 +7,7 @@ export default function ListingCard({ listing }: { listing: ListingSummary }) {
   return (
     <Link
       href={`/listings/${listing.id}`}
-<<<<<<< HEAD
-      className="group block overflow-hidden border-2 border-ink bg-paper transition hover:shadow-[4px_4px_0_0_#211D16]"
-=======
       className="group block overflow-hidden rounded-2xl border border-ink/10 bg-paper shadow-card transition-all duration-200 ease-smooth hover:-translate-y-1 hover:shadow-card-hover"
->>>>>>> master
     >
       <div className="relative h-44 w-full bg-mute/20">
         {listing.coverImageUrl ? (
@@ -19,11 +15,7 @@ export default function ListingCard({ listing }: { listing: ListingSummary }) {
             src={listing.coverImageUrl}
             alt={listing.title}
             fill
-<<<<<<< HEAD
-            className="object-cover"
-=======
             className="object-cover transition-transform duration-300 ease-smooth group-hover:scale-105"
->>>>>>> master
           />
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-mute">

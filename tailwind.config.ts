@@ -22,8 +22,6 @@ const config: Config = {
         display: ["var(--font-fraunces)", "serif"],
         body: ["var(--font-work-sans)", "sans-serif"],
         mono: ["var(--font-plex-mono)", "monospace"]
-<<<<<<< HEAD
-=======
       },
       boxShadow: {
         soft: "0 1px 2px 0 rgba(33,29,22,0.04), 0 8px 24px -8px rgba(33,29,22,0.10)",
@@ -33,7 +31,6 @@ const config: Config = {
       },
       transitionTimingFunction: {
         smooth: "cubic-bezier(0.22, 1, 0.36, 1)"
->>>>>>> master
       }
     }
   },

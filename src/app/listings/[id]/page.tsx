@@ -22,22 +22,14 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
       {listing.images.length > 0 && (
         <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3">
           {listing.images.map((img) => (
-<<<<<<< HEAD
-            <div key={img.id} className="relative h-40 overflow-hidden border-2 border-ink bg-mute/20">
-=======
             <div key={img.id} className="relative h-40 overflow-hidden rounded-xl border border-ink/10 bg-mute/20 shadow-sm">
->>>>>>> master
               <Image src={img.url} alt={listing.title} fill className="object-cover" />
             </div>
           ))}
         </div>
       )}
 
-<<<<<<< HEAD
-      <div className="mt-6 flex items-center justify-between border-2 border-ink bg-white p-4">
-=======
       <div className="mt-6 flex items-center justify-between rounded-2xl border border-ink/10 bg-white p-4 shadow-soft">
->>>>>>> master
         <div>
           <p className="font-mono text-xl font-semibold text-clay">
             KES {listing.price.toLocaleString()}/mo
@@ -46,11 +38,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
             {listing.bedrooms} bed · {listing.bathrooms} bath
           </p>
         </div>
-<<<<<<< HEAD
-        <span className="border-2 border-ink bg-leaf px-3 py-1 text-sm font-medium text-paper">
-=======
         <span className="rounded-full bg-leaf px-3 py-1 text-sm font-medium text-paper shadow-sm">
->>>>>>> master
           {listing.status === "AVAILABLE" ? "Available now" : listing.status}
         </span>
       </div>
