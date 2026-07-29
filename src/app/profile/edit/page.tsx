@@ -110,9 +110,9 @@ function BasicInfoSection({ profile, onUpdate }: { profile: Profile; onUpdate: (
       <form onSubmit={save} className="mt-4 space-y-4">
         <div className="flex items-center gap-4">
           {avatarUrl ? (
-            <Image src={avatarUrl} alt="" width={56} height={56} className="h-14 w-14 border-2 border-ink object-cover" />
+            <Image src={avatarUrl} alt="" width={56} height={56} className="h-14 w-14 rounded-full border border-ink/10 object-cover shadow-sm" />
           ) : (
-            <div className="h-14 w-14 border-2 border-ink bg-mustard/20" />
+            <div className="h-14 w-14 rounded-full border border-ink/10 bg-mustard/20 shadow-sm" />
           )}
           <div className="flex-1">
             <ImageUploader onUploaded={(urls) => setAvatarUrl(urls[0])} />
@@ -289,7 +289,7 @@ function TwoFactorSection({ enabled, onChange }: { enabled: boolean; onChange: (
         <form onSubmit={confirmSetup} className="mt-4 space-y-4">
           <p className="text-sm text-mute">Scan this with Google Authenticator, Authy, or similar, then enter the code it shows.</p>
           {qrDataUrl && (
-            <Image src={qrDataUrl} alt="2FA QR code" width={180} height={180} unoptimized className="border-2 border-ink" />
+            <Image src={qrDataUrl} alt="2FA QR code" width={180} height={180} unoptimized className="rounded-xl border border-ink/10 shadow-sm" />
           )}
           <TextField
             required
@@ -308,7 +308,7 @@ function TwoFactorSection({ enabled, onChange }: { enabled: boolean; onChange: (
           <p className="text-sm text-ink">
             2FA is on. Save these backup codes somewhere safe — each works once if you lose access to your authenticator app.
           </p>
-          <ul className="grid grid-cols-2 gap-2 border-2 border-ink bg-mustard/10 p-3 font-mono text-sm">
+          <ul className="grid grid-cols-2 gap-2 rounded-xl border border-ink/10 bg-mustard/10 p-3 font-mono text-sm shadow-sm">
             {backupCodes.map((c) => (
               <li key={c}>{c}</li>
             ))}
@@ -355,7 +355,7 @@ function SessionsSection() {
         {!sessions && <p className="text-sm text-mute">Loading…</p>}
         {sessions?.length === 0 && <p className="text-sm text-mute">No active sessions.</p>}
         {sessions?.map((s) => (
-          <div key={s.id} className="flex items-center justify-between border-2 border-ink px-3 py-2 text-sm">
+          <div key={s.id} className="flex items-center justify-between rounded-lg border border-ink/10 px-3 py-2 text-sm shadow-sm transition-colors hover:bg-mute/5">
             <div>
               <p className="text-ink">{s.userAgent ?? "Unknown device"}</p>
               <p className="text-xs text-mute">
@@ -402,20 +402,20 @@ function DangerZoneSection() {
   }
 
   return (
-    <section className="border-2 border-clay p-4">
+    <section className="rounded-2xl border border-clay/30 bg-clay/5 p-4 shadow-sm">
       <h2 className="font-display text-lg font-bold text-clay">Delete account</h2>
       <p className="mt-1 text-sm text-mute">
         This permanently removes your account, listings, conversations, and bookings. This can&apos;t be undone.
       </p>
 
       {!confirming ? (
-        <Button
+        <button
           type="button"
-          className="mt-3 bg-paper text-clay"
+          className="mt-3 rounded-xl border border-clay/40 px-4 py-2.5 text-sm font-medium text-clay transition-colors duration-200 ease-smooth hover:bg-clay/5"
           onClick={() => setConfirming(true)}
         >
           Delete my account
-        </Button>
+        </button>
       ) : (
         <form onSubmit={deleteAccount} className="mt-4 space-y-3">
           <TextField
@@ -427,7 +427,7 @@ function DangerZoneSection() {
           />
           {error && <p className="text-sm text-clay">{error}</p>}
           <div className="flex gap-2">
-            <Button disabled={busy} className="bg-clay">
+            <Button disabled={busy}>
               {busy ? "Deleting…" : "Permanently delete"}
             </Button>
             <button type="button" onClick={() => setConfirming(false)} className="text-sm text-mute hover:underline">

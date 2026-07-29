@@ -83,7 +83,7 @@ export default function NewListingPage() {
           placeholder="Title (e.g. 2BR apartment in Ruaka)"
           value={form.title}
           onChange={(e) => update("title", e.target.value)}
-          className="w-full border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
+          className="w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm font-body shadow-sm transition-all duration-150 ease-smooth focus:border-clay focus:outline-none focus:ring-2 focus:ring-clay/40"
         />
         <textarea
           required
@@ -91,7 +91,7 @@ export default function NewListingPage() {
           value={form.description}
           onChange={(e) => update("description", e.target.value)}
           rows={4}
-          className="w-full border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
+          className="w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm font-body shadow-sm transition-all duration-150 ease-smooth focus:border-clay focus:outline-none focus:ring-2 focus:ring-clay/40"
         />
         <div className="grid grid-cols-3 gap-2">
           <input
@@ -100,21 +100,21 @@ export default function NewListingPage() {
             placeholder="Rent (KES)"
             value={form.price}
             onChange={(e) => update("price", e.target.value)}
-            className="border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
+            className="rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm font-body shadow-sm transition-all duration-150 ease-smooth focus:border-clay focus:outline-none focus:ring-2 focus:ring-clay/40"
           />
           <input
             type="number"
             placeholder="Bedrooms"
             value={form.bedrooms}
             onChange={(e) => update("bedrooms", e.target.value)}
-            className="border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
+            className="rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm font-body shadow-sm transition-all duration-150 ease-smooth focus:border-clay focus:outline-none focus:ring-2 focus:ring-clay/40"
           />
           <input
             type="number"
             placeholder="Bathrooms"
             value={form.bathrooms}
             onChange={(e) => update("bathrooms", e.target.value)}
-            className="border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
+            className="rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm font-body shadow-sm transition-all duration-150 ease-smooth focus:border-clay focus:outline-none focus:ring-2 focus:ring-clay/40"
           />
         </div>
         <div>
@@ -122,7 +122,7 @@ export default function NewListingPage() {
           <LocationPicker onChange={handleLocationChange} />
         </div>
         {error && <p className="text-sm text-clay font-medium">{error}</p>}
-        <button className="w-full border-2 border-ink bg-clay px-4 py-2 text-sm font-medium text-paper shadow-[2px_2px_0_0_#211D16] transition hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none">
+        <button className="w-full rounded-xl bg-clay px-4 py-2.5 text-sm font-medium text-paper shadow-card transition-all duration-200 ease-smooth hover:-translate-y-0.5 hover:shadow-lift">
           Publish listing
         </button>
       </form>
