@@ -10,19 +10,32 @@ export default function BrowseView({ listings }: { listings: ListingSummary[] })
 
   return (
     <div>
+<<<<<<< HEAD
       <div className="mb-4 flex gap-2">
         <button
           onClick={() => setView("grid")}
           className={`border-2 border-ink px-3 py-1 text-sm font-medium ${
             view === "grid" ? "bg-clay text-paper" : "bg-white text-ink"
+=======
+      <div className="mb-4 inline-flex gap-1 rounded-xl border border-ink/10 bg-white p-1 shadow-sm">
+        <button
+          onClick={() => setView("grid")}
+          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-200 ease-smooth ${
+            view === "grid" ? "bg-clay text-paper shadow-sm" : "text-ink hover:bg-mute/10"
+>>>>>>> master
           }`}
         >
           Grid
         </button>
         <button
           onClick={() => setView("map")}
+<<<<<<< HEAD
           className={`border-2 border-ink px-3 py-1 text-sm font-medium ${
             view === "map" ? "bg-clay text-paper" : "bg-white text-ink"
+=======
+          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-200 ease-smooth ${
+            view === "map" ? "bg-clay text-paper shadow-sm" : "text-ink hover:bg-mute/10"
+>>>>>>> master
           }`}
         >
           Map

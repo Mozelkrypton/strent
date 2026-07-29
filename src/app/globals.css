@@ -2,6 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+<<<<<<< HEAD
 body {
   @apply bg-paper text-ink font-body;
+=======
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-paper text-ink font-body antialiased;
+}
+
+* {
+  @apply transition-colors duration-150 ease-smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+>>>>>>> master
 }

@@ -12,7 +12,11 @@ export default function SignOutButton() {
   }
 
   return (
+<<<<<<< HEAD
     <button onClick={handleSignOut} className="hover:text-clay">
+=======
+    <button onClick={handleSignOut} className="transition-colors hover:text-clay">
+>>>>>>> master
       Sign out
     </button>
   );

@@ -73,7 +73,11 @@ export default function LocationPicker({ onChange }: LocationPickerProps) {
 
   if (status === "error") {
     return (
+<<<<<<< HEAD
       <div className="border-2 border-ink bg-mute/10 p-4 text-sm text-mute">
+=======
+      <div className="rounded-2xl border border-ink/10 bg-mute/10 p-4 text-sm text-mute">
+>>>>>>> master
         Map picker needs NEXT_PUBLIC_GOOGLE_MAPS_API_KEY set (with the Maps JavaScript + Places
         APIs enabled) to work.
       </div>
@@ -86,9 +90,15 @@ export default function LocationPicker({ onChange }: LocationPickerProps) {
         ref={searchRef}
         type="text"
         placeholder="Search an address or estate (e.g. Ruaka, Nairobi)"
+<<<<<<< HEAD
         className="mb-2 w-full border-2 border-ink bg-white px-3 py-2 text-sm font-body focus:outline-none focus:ring-2 focus:ring-clay"
       />
       <div ref={mapRef} className="h-72 w-full border-2 border-ink bg-mute/10" />
+=======
+        className="mb-2 w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm font-body shadow-sm transition-all duration-150 ease-smooth focus:border-clay focus:outline-none focus:ring-2 focus:ring-clay/40"
+      />
+      <div ref={mapRef} className="h-72 w-full overflow-hidden rounded-2xl border border-ink/10 bg-mute/10 shadow-soft" />
+>>>>>>> master
       <p className="mt-2 text-xs text-mute">
         Search above, or click anywhere on the map to drop the pin exactly on the building.
         {pickedAddress && <span className="block font-medium text-ink">Selected: {pickedAddress}</span>}
