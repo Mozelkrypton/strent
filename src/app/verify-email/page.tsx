@@ -50,7 +50,7 @@ function VerifyEmailBody() {
       <div className="mt-6 text-sm">
         {status === "pending" && <p className="text-mute">Verifying…</p>}
         {status === "ok" && <p className="text-ink">Your email is verified.</p>}
-        {status === "error" && <p className="text-clay font-medium">{error}</p>}
+        {status === "error" && <p className="text-danger font-medium">{error}</p>}
       </div>
       <div className="mt-4 text-sm text-mute">
         <Link href="/" className="hover:text-clay">

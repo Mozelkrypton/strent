@@ -60,7 +60,7 @@ function TwoFactorChallengeForm() {
           value={code}
           onChange={(e) => setCode(e.target.value)}
         />
-        {error && <p className="text-sm text-clay font-medium">{error}</p>}
+        {error && <p className="text-sm text-danger font-medium">{error}</p>}
         <Button disabled={loading || !challengeToken} className="w-full">
           {loading ? "Verifying…" : "Verify"}
         </Button>

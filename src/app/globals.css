@@ -7,11 +7,16 @@ html {
 }
 
 body {
-  @apply bg-paper text-ink font-body antialiased;
+  @apply bg-canvas text-ink font-body antialiased;
+  -webkit-font-smoothing: antialiased;
 }
 
 * {
   @apply transition-colors duration-150 ease-smooth;
+}
+
+::selection {
+  @apply bg-primary/20;
 }
 
 @media (prefers-reduced-motion: reduce) {

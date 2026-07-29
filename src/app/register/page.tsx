@@ -91,7 +91,7 @@ export default function RegisterPage() {
           value={form.password}
           onChange={(e) => update("password", e.target.value)}
         />
-        {error && <p className="text-sm text-clay font-medium">{error}</p>}
+        {error && <p className="text-sm text-danger font-medium">{error}</p>}
         <Button disabled={loading} className="w-full">
           {loading ? "Creating account…" : "Create account"}
         </Button>

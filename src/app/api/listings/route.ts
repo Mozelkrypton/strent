@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
       ...(maxPrice ? { price: { lte: Number(maxPrice) } } : {}),
       ...(bedrooms ? { bedrooms: Number(bedrooms) } : {})
     },
-    include: { images: { take: 1 } },
+    include: { images: { take: 1 }, landlord: { select: { verified: true } } },
     orderBy: { createdAt: "desc" }
   });
 
@@ -30,7 +30,8 @@ export async function GET(req: NextRequest) {
       address: l.address,
       latitude: l.latitude,
       longitude: l.longitude,
-      coverImageUrl: l.images[0]?.url ?? null
+      coverImageUrl: l.images[0]?.url ?? null,
+      landlordVerified: l.landlord.verified
     }))
   );
 }

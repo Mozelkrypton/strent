@@ -45,7 +45,7 @@ export default function EditProfilePage() {
       .catch(() => setLoadError(true));
   }, [router]);
 
-  if (loadError) return <div className="mx-auto max-w-2xl px-4 py-16 text-sm text-clay">Couldn&apos;t load your profile.</div>;
+  if (loadError) return <div className="mx-auto max-w-2xl px-4 py-16 text-sm text-danger">Couldn&apos;t load your profile.</div>;
   if (!profile) return <div className="mx-auto max-w-2xl px-4 py-16 text-sm text-mute">Loading…</div>;
 
   return (
@@ -270,7 +270,7 @@ function TwoFactorSection({ enabled, onChange }: { enabled: boolean; onChange: (
             onChange={(e) => setDisablePassword(e.target.value)}
             required
           />
-          {error && <p className="text-sm text-clay">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <Button>Disable 2FA</Button>
         </form>
       )}
@@ -281,7 +281,7 @@ function TwoFactorSection({ enabled, onChange }: { enabled: boolean; onChange: (
           <Button className="mt-3" onClick={startSetup} type="button">
             Set up 2FA
           </Button>
-          {error && <p className="mt-2 text-sm text-clay">{error}</p>}
+          {error && <p className="mt-2 text-sm text-danger">{error}</p>}
         </div>
       )}
 
@@ -298,7 +298,7 @@ function TwoFactorSection({ enabled, onChange }: { enabled: boolean; onChange: (
             value={code}
             onChange={(e) => setCode(e.target.value)}
           />
-          {error && <p className="text-sm text-clay">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <Button>Confirm & enable</Button>
         </form>
       )}
@@ -402,8 +402,8 @@ function DangerZoneSection() {
   }
 
   return (
-    <section className="rounded-2xl border border-clay/30 bg-clay/5 p-4 shadow-sm">
-      <h2 className="font-display text-lg font-bold text-clay">Delete account</h2>
+    <section className="rounded-2xl border border-danger/30 bg-danger/5 p-4 shadow-sm">
+      <h2 className="font-display text-lg font-bold text-danger">Delete account</h2>
       <p className="mt-1 text-sm text-mute">
         This permanently removes your account, listings, conversations, and bookings. This can&apos;t be undone.
       </p>
@@ -411,7 +411,7 @@ function DangerZoneSection() {
       {!confirming ? (
         <button
           type="button"
-          className="mt-3 rounded-xl border border-clay/40 px-4 py-2.5 text-sm font-medium text-clay transition-colors duration-200 ease-smooth hover:bg-clay/5"
+          className="mt-3 rounded-xl border border-danger/40 px-4 py-2.5 text-sm font-medium text-danger transition-colors duration-200 ease-smooth hover:bg-danger/5"
           onClick={() => setConfirming(true)}
         >
           Delete my account
@@ -425,7 +425,7 @@ function DangerZoneSection() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {error && <p className="text-sm text-clay">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <div className="flex gap-2">
             <Button disabled={busy}>
               {busy ? "Deleting…" : "Permanently delete"}

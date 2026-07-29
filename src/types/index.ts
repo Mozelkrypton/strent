@@ -8,6 +8,7 @@ export type ListingSummary = {
   latitude: number;
   longitude: number;
   coverImageUrl: string | null;
+  landlordVerified: boolean;
 };
 
 export type ListingDetail = ListingSummary & {

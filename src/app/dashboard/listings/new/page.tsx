@@ -121,7 +121,7 @@ export default function NewListingPage() {
           <label className="mb-2 block text-sm font-medium text-ink">Building location</label>
           <LocationPicker onChange={handleLocationChange} />
         </div>
-        {error && <p className="text-sm text-clay font-medium">{error}</p>}
+        {error && <p className="text-sm text-danger font-medium">{error}</p>}
         <button className="w-full rounded-xl bg-clay px-4 py-2.5 text-sm font-medium text-paper shadow-card transition-all duration-200 ease-smooth hover:-translate-y-0.5 hover:shadow-lift">
           Publish listing
         </button>

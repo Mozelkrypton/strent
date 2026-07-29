@@ -73,11 +73,11 @@ function ResetPasswordForm() {
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
         />
-        {error && <p className="text-sm text-clay font-medium">{error}</p>}
+        {error && <p className="text-sm text-danger font-medium">{error}</p>}
         <Button disabled={loading || !token} className="w-full">
           {loading ? "Saving…" : "Reset password"}
         </Button>
-        {!token && <p className="text-sm text-clay">Missing or invalid reset link.</p>}
+        {!token && <p className="text-sm text-danger">Missing or invalid reset link.</p>}
       </form>
     </div>
   );
