@@ -28,7 +28,16 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     status: listing.status,
     coverImageUrl: listing.images[0]?.url ?? null,
     images: listing.images.map((i) => ({ id: i.id, url: i.url })),
-    landlord: listing.landlord
+    landlord: listing.landlord,
+    ratings: {
+      overall: listing.avgRating,
+      location: listing.avgRatingLocation,
+      value: listing.avgRatingValue,
+      condition: listing.avgRatingCondition,
+      utilities: listing.avgRatingUtilities,
+      landlord: listing.avgRatingLandlord,
+      count: listing.reviewCount
+    }
   });
 }
 
