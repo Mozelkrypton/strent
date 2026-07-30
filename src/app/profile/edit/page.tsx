@@ -324,7 +324,7 @@ function TwoFactorSection({ enabled, onChange }: { enabled: boolean; onChange: (
 
 type SessionRow = {
   id: string;
-  userAgent: string | null;
+  deviceLabel: string;
   ipAddress: string | null;
   createdAt: string;
   lastUsedAt: string;
@@ -357,7 +357,7 @@ function SessionsSection() {
         {sessions?.map((s) => (
           <div key={s.id} className="flex items-center justify-between rounded-lg border border-ink/10 px-3 py-2 text-sm shadow-sm transition-colors hover:bg-mute/5">
             <div>
-              <p className="text-ink">{s.userAgent ?? "Unknown device"}</p>
+              <p className="text-ink">{s.deviceLabel}</p>
               <p className="text-xs text-mute">
                 {s.ipAddress ?? "unknown IP"} · last used {new Date(s.lastUsedAt).toLocaleString()}
               </p>
