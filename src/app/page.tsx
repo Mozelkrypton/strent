@@ -9,8 +9,13 @@ async function getListings(): Promise<ListingSummary[]> {
   return res.json();
 }
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams
+}: {
+  searchParams: { view?: string };
+}) {
   const listings = await getListings();
+  const initialView = searchParams.view === "map" ? "map" : "grid";
 
   return (
     <div>
@@ -34,7 +39,7 @@ export default async function HomePage() {
             <p className="mt-1 text-mute">The first landlord to list one gets the wall to themselves.</p>
           </div>
         ) : (
-          <BrowseView listings={listings} />
+          <BrowseView listings={listings} initialView={initialView} />
         )}
       </div>
     </div>

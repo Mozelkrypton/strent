@@ -5,8 +5,14 @@ import ListingCard from "@/components/ListingCard";
 import ListingsMap from "@/components/ListingsMap";
 import type { ListingSummary } from "@/types";
 
-export default function BrowseView({ listings }: { listings: ListingSummary[] }) {
-  const [view, setView] = useState<"grid" | "map">("grid");
+export default function BrowseView({
+  listings,
+  initialView = "grid"
+}: {
+  listings: ListingSummary[];
+  initialView?: "grid" | "map";
+}) {
+  const [view, setView] = useState<"grid" | "map">(initialView);
 
   return (
     <div>
