@@ -2,6 +2,8 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import MapView from "@/components/MapView";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import StarRating from "@/components/StarRating";
+import ReviewsSection from "@/components/ReviewsSection";
 import type { ListingDetail } from "@/types";
 
 async function getListing(id: string): Promise<ListingDetail | null> {
@@ -20,7 +22,18 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <h1 className="font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">{listing.title}</h1>
-      <p className="mt-1 text-mute">{listing.address}</p>
+      <div className="mt-1 flex items-center gap-2 text-mute">
+        <span>{listing.address}</span>
+        {listing.ratings.count > 0 && (
+          <>
+            <span className="text-mute/50">·</span>
+            <StarRating value={listing.ratings.overall ?? 0} size="sm" />
+            <span className="text-sm">
+              {listing.ratings.overall?.toFixed(1)} ({listing.ratings.count})
+            </span>
+          </>
+        )}
+      </div>
 
       {heroImage && (
         <div className="mt-6 grid grid-cols-4 gap-2 sm:grid-rows-2">
@@ -71,6 +84,8 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
       </p>
       {/* Once signed in, this becomes: create a Conversation via POST /api/conversations,
           then render <ChatPanel conversationId={...} /> here. */}
+
+      <ReviewsSection listingId={listing.id} ratings={listing.ratings} />
     </div>
   );
 }
