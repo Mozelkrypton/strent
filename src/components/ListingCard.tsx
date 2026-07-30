@@ -31,12 +31,26 @@ export default function ListingCard({ listing }: { listing: ListingSummary }) {
       <div className="space-y-1 p-4">
         <div className="flex items-start justify-between gap-2">
           <p className="font-display text-base font-semibold leading-snug text-ink">{listing.title}</p>
+          {listing.reviewCount > 0 && (
+            <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-ink">
+              <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-accent">
+                <path d="M10 1.5l2.6 5.4 5.9.8-4.3 4.2 1 5.9L10 15l-5.2 2.8 1-5.9L1.5 7.7l5.9-.8L10 1.5z" />
+              </svg>
+              {listing.avgRating?.toFixed(1)}
+            </span>
+          )}
         </div>
         <p className="text-sm text-mute">{listing.address}</p>
         <div className="flex items-center gap-1.5 text-sm text-mute">
           <span>{listing.bedrooms} bd</span>
           <span className="text-mute/50">·</span>
           <span>{listing.bathrooms} ba</span>
+          {listing.reviewCount > 0 && (
+            <>
+              <span className="text-mute/50">·</span>
+              <span>{listing.reviewCount} review{listing.reviewCount === 1 ? "" : "s"}</span>
+            </>
+          )}
         </div>
         <p className="pt-1 font-mono text-sm font-bold text-ink">
           KES {listing.price.toLocaleString()}
