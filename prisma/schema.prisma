@@ -53,6 +53,7 @@ model User {
   conversations         Conversation[]         @relation("TenantConversations")
   messages              Message[]
   bookings              Booking[]              @relation("TenantBookings")
+  reviews               Review[]
   sessions              Session[]
   emailVerificationTokens EmailVerificationToken[]
   passwordResetTokens   PasswordResetToken[]
@@ -136,6 +137,18 @@ model Listing {
   images        ListingImage[]
   conversations Conversation[]
   bookings      Booking[]
+  reviews       Review[]
+
+  // Cached aggregates, recomputed by ReviewService whenever a review is
+  // written — lets the browse grid sort/filter by any category cheaply,
+  // without joining and averaging Review rows on every page load.
+  avgRating          Float? // overall average across all categories
+  avgRatingLocation  Float?
+  avgRatingValue     Float?
+  avgRatingCondition Float?
+  avgRatingUtilities Float?
+  avgRatingLandlord  Float?
+  reviewCount        Int    @default(0)
 
   @@index([latitude, longitude])
   @@index([status])
@@ -187,4 +200,28 @@ model Booking {
   moveInDate    DateTime?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+}
+
+// One review per tenant per listing. Rated across categories rather than a
+// single star, so browse/sort can be tailored to what each tenant actually
+// cares about (e.g. someone prioritizing water reliability over decor).
+model Review {
+  id        String   @id @default(cuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  tenantId  String
+  tenant    User     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  ratingLocation  Int // security & accessibility of the area, 1-5
+  ratingValue     Int // fairness of price for what you get, 1-5
+  ratingCondition Int // state of the house itself, 1-5
+  ratingUtilities Int // water/power reliability, 1-5
+  ratingLandlord  Int // landlord responsiveness & fairness, 1-5
+
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([listingId, tenantId])
+  @@index([listingId])
 }
