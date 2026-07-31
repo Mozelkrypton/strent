@@ -115,7 +115,7 @@ function BasicInfoSection({ profile, onUpdate }: { profile: Profile; onUpdate: (
             <div className="h-14 w-14 rounded-full border border-ink/10 bg-mustard/20 shadow-sm" />
           )}
           <div className="flex-1">
-            <ImageUploader onUploaded={(urls) => setAvatarUrl(urls[0])} />
+            <ImageUploader context="avatar" onUploaded={(urls) => setAvatarUrl(urls[0])} />
           </div>
         </div>
         <TextField placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} required />
