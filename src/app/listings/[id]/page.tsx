@@ -38,11 +38,24 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
       {heroImage && (
         <div className="mt-6 grid grid-cols-4 gap-2 sm:grid-rows-2">
           <div className="relative col-span-4 h-64 overflow-hidden rounded-3xl bg-mute/10 shadow-card sm:col-span-2 sm:row-span-2 sm:h-full">
-            <Image src={heroImage.url} alt={listing.title} fill className="object-cover" priority />
+            <Image
+              src={heroImage.url}
+              alt={listing.title}
+              fill
+              sizes="(min-width: 640px) 50vw, 100vw"
+              className="object-cover"
+              priority
+            />
           </div>
           {restImages.slice(0, 4).map((img) => (
             <div key={img.id} className="relative col-span-2 h-32 overflow-hidden rounded-2xl bg-mute/10 shadow-sm sm:col-span-1 sm:h-full">
-              <Image src={img.url} alt={listing.title} fill className="object-cover" />
+              <Image
+                src={img.url}
+                alt={listing.title}
+                fill
+                sizes="(min-width: 640px) 25vw, 50vw"
+                className="object-cover"
+              />
             </div>
           ))}
         </div>
