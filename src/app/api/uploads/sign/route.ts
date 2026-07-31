@@ -10,15 +10,28 @@ cloudinary.config({
 
 // POST /api/uploads/sign — returns a signature so the browser can upload straight to
 // Cloudinary without the file ever passing through our server (faster, cheaper).
+// Body: { context?: "listing" | "avatar" } — defaults to "listing" for backwards compatibility.
 export async function POST(req: NextRequest) {
   const session = await getSessionUser(req);
+  if (!session) {
+    return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+  }
 
-  if (!session || session.role !== "LANDLORD") {
-    return NextResponse.json({ error: "Only landlords can upload listing photos" }, { status: 403 });
+  const body = await req.json().catch(() => ({}));
+  const context: "listing" | "avatar" = body.context === "avatar" ? "avatar" : "listing";
+
+  let folder: string;
+  if (context === "avatar") {
+    // Any signed-in user can upload their own avatar, into their own folder.
+    folder = `strent/avatars/${session.userId}`;
+  } else {
+    if (session.role !== "LANDLORD") {
+      return NextResponse.json({ error: "Only landlords can upload listing photos" }, { status: 403 });
+    }
+    folder = "strent/listings";
   }
 
   const timestamp = Math.round(Date.now() / 1000);
-  const folder = "strent/listings";
 
   const signature = cloudinary.utils.api_sign_request(
     { timestamp, folder },
