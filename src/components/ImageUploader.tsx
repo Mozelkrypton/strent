@@ -4,11 +4,12 @@ import { useRef, useState } from "react";
 
 type UploaderProps = {
   onUploaded: (urls: string[]) => void;
+  context?: "listing" | "avatar";
 };
 
 type UploadState = { name: string; status: "uploading" | "done" | "error"; url?: string };
 
-export default function ImageUploader({ onUploaded }: UploaderProps) {
+export default function ImageUploader({ onUploaded, context = "listing" }: UploaderProps) {
   const [items, setItems] = useState<UploadState[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -17,7 +18,11 @@ export default function ImageUploader({ onUploaded }: UploaderProps) {
     setItems((prev) => [...prev, ...fileArray.map((f) => ({ name: f.name, status: "uploading" as const }))]);
 
     // One signature covers the whole batch — same folder, same timestamp.
-    const signRes = await fetch("/api/uploads/sign", { method: "POST" });
+    const signRes = await fetch("/api/uploads/sign", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ context })
+    });
     if (!signRes.ok) {
       setItems((prev) => prev.map((it) => (fileArray.some((f) => f.name === it.name) ? { ...it, status: "error" } : it)));
       return;

@@ -16,6 +16,7 @@ export default function ListingCard({ listing }: { listing: ListingSummary }) {
             src={listing.coverImageUrl}
             alt={listing.title}
             fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover transition-transform duration-500 ease-smooth group-hover:scale-105"
           />
         ) : (
