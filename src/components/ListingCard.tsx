@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { ListingSummary } from "@/types";
 import Stamp from "@/components/Stamp";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import { unitTypeLabel } from "@/lib/units";
 
 export default function ListingCard({ listing }: { listing: ListingSummary }) {
   return (
@@ -43,7 +44,7 @@ export default function ListingCard({ listing }: { listing: ListingSummary }) {
         </div>
         <p className="text-sm text-mute">{listing.address}</p>
         <div className="flex items-center gap-1.5 text-sm text-mute">
-          <span>{listing.bedrooms} bd</span>
+          <span>{unitTypeLabel(listing.unitType) || `${listing.bedrooms} bd`}</span>
           <span className="text-mute/50">·</span>
           <span>{listing.bathrooms} ba</span>
           {listing.reviewCount > 0 && (

@@ -26,7 +26,7 @@ export default async function Navbar() {
           <Link href="/?view=map" className="transition-colors hover:text-primary">
             Map search
           </Link>
-          <Link href="/dashboard/listings/new" className="transition-colors hover:text-primary">
+          <Link href="/dashboard" className="transition-colors hover:text-primary">
             List a house
           </Link>
           <Link href="/how-it-works" className="transition-colors hover:text-primary">

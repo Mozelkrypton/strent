@@ -27,7 +27,7 @@ export default function Footer() {
                 <Link href="/?view=map" className="transition-colors hover:text-primary">Search by map</Link>
               </li>
               <li>
-                <Link href="/dashboard/listings/new" className="transition-colors hover:text-primary">List a house</Link>
+                <Link href="/dashboard" className="transition-colors hover:text-primary">List a house</Link>
               </li>
             </ul>
           </div>

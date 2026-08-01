@@ -37,6 +37,7 @@ model User {
   passwordHash String
   role         Role     @default(TENANT)
   verified     Boolean  @default(false) // landlord ID/ownership check passed
+  suspended    Boolean  @default(false) // admin-disabled account; blocks login
   avatarUrl    String?
   bio          String?
   createdAt    DateTime @default(now())
@@ -50,11 +51,15 @@ model User {
   twoFactorBackupCodes String[] @default([]) // hashed one-time backup codes
 
   listings              Listing[]              @relation("LandlordListings")
+  buildings             Building[]             @relation("LandlordBuildings")
   conversations         Conversation[]         @relation("TenantConversations")
   messages              Message[]
   bookings              Booking[]              @relation("TenantBookings")
   reviews               Review[]
   sessions              Session[]
+  verificationRequests  VerificationRequest[] @relation("LandlordVerificationRequests")
+  reviewedVerifications VerificationRequest[] @relation("AdminReviewedVerifications")
+  adminActions          AdminActionLog[]
   emailVerificationTokens EmailVerificationToken[]
   passwordResetTokens   PasswordResetToken[]
   loginEvents           LoginEvent[]
@@ -117,14 +122,46 @@ model LoginEvent {
   @@index([email])
 }
 
+enum UnitType {
+  BEDSITTER
+  ONE_BEDROOM
+  TWO_BEDROOM
+  THREE_BEDROOM
+  FOUR_BEDROOM
+  FIVE_BEDROOM
+  SIX_BEDROOM
+}
+
+// A physical property a landlord owns — one address, one map pin, shared by
+// every unit inside it. A landlord with just one standalone house never
+// needs one of these; Listing.buildingId stays null for them.
+model Building {
+  id          String   @id @default(cuid())
+  name        String
+  address     String
+  latitude    Float
+  longitude   Float
+  description String?
+  createdAt   DateTime @default(now())
+
+  landlordId String
+  landlord   User   @relation("LandlordBuildings", fields: [landlordId], references: [id], onDelete: Cascade)
+
+  listings Listing[]
+
+  @@index([landlordId])
+  @@index([latitude, longitude])
+}
+
 model Listing {
   id          String        @id @default(cuid())
   title       String
   description String
   price       Int // monthly rent, in KES
-  bedrooms    Int
+  bedrooms    Int // kept for existing filters/sort; derived from unitType when set
+  unitType    UnitType? // real unit-size type for new listings (bedsitter, 1BR..6BR)
   bathrooms   Int
-  address     String
+  address     String // building's address is copied here on create, kept for standalone listings
   latitude    Float
   longitude   Float
   status      ListingStatus @default(AVAILABLE)
@@ -133,6 +170,11 @@ model Listing {
 
   landlordId String
   landlord   User   @relation("LandlordListings", fields: [landlordId], references: [id], onDelete: Cascade)
+
+  // A unit belonging to one of the landlord's Buildings — optional, so a
+  // landlord with a single standalone house never has to create a Building.
+  buildingId String?
+  building   Building? @relation(fields: [buildingId], references: [id], onDelete: Cascade)
 
   images        ListingImage[]
   conversations Conversation[]
@@ -202,7 +244,52 @@ model Booking {
   updatedAt     DateTime      @updatedAt
 }
 
-// One review per tenant per listing. Rated across categories rather than a
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// A landlord's submission to earn the Verified badge — ID + proof of
+// ownership/authority to let out the property, reviewed by an admin.
+model VerificationRequest {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("LandlordVerificationRequests", fields: [userId], references: [id], onDelete: Cascade)
+
+  idDocumentUrl       String
+  ownershipDocumentUrl String
+  note                String? // anything the landlord wants the reviewer to know
+
+  status           VerificationStatus @default(PENDING)
+  rejectionReason  String?
+  reviewedById     String?
+  reviewedBy       User?              @relation("AdminReviewedVerifications", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedAt       DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([status])
+}
+
+// Every privileged action an admin takes — who, what, on whom, when.
+// This is the accountability layer that makes the admin role safe to grant.
+model AdminActionLog {
+  id       String @id @default(cuid())
+  adminId  String
+  admin    User   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  action     String // e.g. "user.suspend", "listing.remove", "verification.approve"
+  targetType String // e.g. "User", "Listing", "VerificationRequest"
+  targetId   String
+  detail     String?
+
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+  @@index([targetType, targetId])
+}
 // single star, so browse/sort can be tailored to what each tenant actually
 // cares about (e.g. someone prioritizing water reliability over decor).
 model Review {

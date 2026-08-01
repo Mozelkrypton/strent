@@ -1,10 +1,12 @@
 import type { RatingCategoryKey } from "@/lib/reviews/categories";
+import type { UnitTypeKey } from "@/lib/units";
 
 export type ListingSummary = {
   id: string;
   title: string;
   price: number;
   bedrooms: number;
+  unitType: UnitTypeKey | null;
   bathrooms: number;
   address: string;
   latitude: number;

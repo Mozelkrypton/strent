@@ -21,6 +21,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     description: listing.description,
     price: listing.price,
     bedrooms: listing.bedrooms,
+    unitType: listing.unitType,
     bathrooms: listing.bathrooms,
     address: listing.address,
     latitude: listing.latitude,

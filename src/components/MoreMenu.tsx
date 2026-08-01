@@ -46,7 +46,7 @@ export default function MoreMenu({ signedIn, firstName }: MoreMenuProps) {
           <div className="border-b border-ink/5 pb-2">
             <MenuLink href="/" label="Browse listings" onNavigate={() => setOpen(false)} />
             <MenuLink href="/?view=map" label="Search by map" onNavigate={() => setOpen(false)} />
-            <MenuLink href="/dashboard/listings/new" label="List a house" onNavigate={() => setOpen(false)} />
+            <MenuLink href="/dashboard" label="List a house" onNavigate={() => setOpen(false)} />
             <MenuLink href="/how-it-works" label="How it works" onNavigate={() => setOpen(false)} />
             <MenuLink href="/help" label="Help & safety" onNavigate={() => setOpen(false)} />
           </div>

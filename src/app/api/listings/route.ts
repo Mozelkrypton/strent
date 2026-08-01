@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/security/currentUser";
 import { SORT_OPTIONS, type SortKey } from "@/lib/reviews/categories";
+import { isValidUnitType, bedroomsForUnitType } from "@/lib/units";
 
 const SORT_FIELD: Record<SortKey, string> = {
   overall: "avgRating",
@@ -52,6 +53,7 @@ export async function GET(req: NextRequest) {
       title: l.title,
       price: l.price,
       bedrooms: l.bedrooms,
+      unitType: l.unitType,
       bathrooms: l.bathrooms,
       address: l.address,
       latitude: l.latitude,
@@ -73,18 +75,22 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { title, description, price, bedrooms, bathrooms, address, latitude, longitude, imageUrls } = body;
+  const { title, description, price, bedrooms, bathrooms, address, latitude, longitude, imageUrls, unitType } = body;
 
   if (!title || !description || !price || !address || latitude == null || longitude == null) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
+
+  const resolvedUnitType = isValidUnitType(unitType) ? unitType : undefined;
+  const resolvedBedrooms = resolvedUnitType ? bedroomsForUnitType(resolvedUnitType) : (bedrooms ?? 1);
 
   const listing = await prisma.listing.create({
     data: {
       title,
       description,
       price,
-      bedrooms: bedrooms ?? 1,
+      unitType: resolvedUnitType,
+      bedrooms: resolvedBedrooms,
       bathrooms: bathrooms ?? 1,
       address,
       latitude,

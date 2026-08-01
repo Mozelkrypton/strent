@@ -1,76 +1,59 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ImageUploader from "@/components/ImageUploader";
-import LocationPicker from "@/components/LocationPicker";
 import TextField from "@/components/TextField";
 import Button from "@/components/Button";
 import { UNIT_TYPES, type UnitTypeKey } from "@/lib/units";
 
-export default function NewListingPage() {
+export default function NewUnitPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    price: "",
-    bathrooms: "1"
-  });
+  const [form, setForm] = useState({ title: "", description: "", price: "", bathrooms: "1" });
   const [unitType, setUnitType] = useState<UnitTypeKey>("ONE_BEDROOM");
-  const [location, setLocation] = useState<{ latitude: number; longitude: number; address: string } | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
   function update(field: string, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
-  const handleLocationChange = useCallback(
-    (loc: { latitude: number; longitude: number; address: string }) => setLocation(loc),
-    []
-  );
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     if (imageUrls.length === 0) {
-      setError("Add at least one photo — listings without photos get far less interest.");
+      setError("Add at least one photo — units without photos get far less interest.");
       return;
     }
-    if (!location) {
-      setError("Search or click the map to set the house's location.");
-      return;
-    }
-    const res = await fetch("/api/listings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...form,
-        price: Number(form.price),
-        bathrooms: Number(form.bathrooms),
-        unitType,
-        address: location.address || "Pinned location",
-        latitude: location.latitude,
-        longitude: location.longitude,
-        imageUrls
-      })
-    });
-    if (res.ok) {
-      const listing = await res.json();
-      router.push(`/listings/${listing.id}`);
-    } else {
-      const data = await res.json();
-      setError(data.error ?? "Something went wrong");
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/buildings/${params.id}/listings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          price: Number(form.price),
+          bathrooms: Number(form.bathrooms),
+          unitType,
+          imageUrls
+        })
+      });
+      if (res.ok) {
+        router.push(`/dashboard/buildings/${params.id}`);
+      } else {
+        const data = await res.json();
+        setError(data.error ?? "Something went wrong");
+      }
+    } finally {
+      setSaving(false);
     }
   }
 
   return (
     <div className="mx-auto max-w-xl px-4 py-10">
-      <h1 className="font-display text-xl font-bold text-ink">List a standalone house</h1>
-      <p className="mt-1 text-sm text-mute">
-        For a single house you rent out. Managing a building with several units?{" "}
-        <a href="/dashboard" className="text-primary hover:underline">Go to your dashboard</a> instead.
-      </p>
+      <h1 className="font-display text-xl font-bold text-ink">Add a unit</h1>
+      <p className="mt-1 text-sm text-mute">Location is inherited from the building — just the unit details here.</p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         <div>
           <label className="mb-2 block text-sm font-medium text-ink">Photos</label>
@@ -86,7 +69,7 @@ export default function NewListingPage() {
         </div>
         <TextField
           required
-          placeholder="Title (e.g. 2BR apartment in Ruaka)"
+          placeholder="Unit title (e.g. Unit 4B)"
           value={form.title}
           onChange={(e) => update("title", e.target.value)}
         />
@@ -124,12 +107,10 @@ export default function NewListingPage() {
             onChange={(e) => update("bathrooms", e.target.value)}
           />
         </div>
-        <div>
-          <label className="mb-2 block text-sm font-medium text-ink">House location</label>
-          <LocationPicker onChange={handleLocationChange} />
-        </div>
         {error && <p className="text-sm text-danger font-medium">{error}</p>}
-        <Button className="w-full">Publish listing</Button>
+        <Button disabled={saving} className="w-full">
+          {saving ? "Saving…" : "Publish unit"}
+        </Button>
       </form>
     </div>
   );
