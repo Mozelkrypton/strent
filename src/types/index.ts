@@ -9,8 +9,8 @@ export type ListingSummary = {
   unitType: UnitTypeKey | null;
   bathrooms: number;
   address: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   coverImageUrl: string | null;
   landlordVerified: boolean;
   avgRating: number | null;

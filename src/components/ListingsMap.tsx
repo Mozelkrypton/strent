@@ -10,6 +10,11 @@ export default function ListingsMap({ listings }: { listings: ListingSummary[] }
   const mapRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
 
+  const mappable = listings.filter(
+    (l): l is ListingSummary & { latitude: number; longitude: number } => l.latitude != null && l.longitude != null
+  );
+  const unmappedCount = listings.length - mappable.length;
+
   useEffect(() => {
     let markers: google.maps.Marker[] = [];
 
@@ -18,7 +23,7 @@ export default function ListingsMap({ listings }: { listings: ListingSummary[] }
         if (!mapRef.current) return;
 
         const map = new g.maps.Map(mapRef.current, {
-          center: listings[0] ? { lat: listings[0].latitude, lng: listings[0].longitude } : NAIROBI,
+          center: mappable[0] ? { lat: mappable[0].latitude, lng: mappable[0].longitude } : NAIROBI,
           zoom: 12,
           streetViewControl: false,
           mapTypeControl: false
@@ -27,7 +32,7 @@ export default function ListingsMap({ listings }: { listings: ListingSummary[] }
         const infoWindow = new g.maps.InfoWindow();
         const bounds = new g.maps.LatLngBounds();
 
-        markers = listings.map((listing) => {
+        markers = mappable.map((listing) => {
           const position = { lat: listing.latitude, lng: listing.longitude };
           bounds.extend(position);
           const marker = new g.maps.Marker({ position, map, title: listing.title });
@@ -44,13 +49,13 @@ export default function ListingsMap({ listings }: { listings: ListingSummary[] }
           return marker;
         });
 
-        if (listings.length > 1) map.fitBounds(bounds);
+        if (mappable.length > 1) map.fitBounds(bounds);
         setStatus("ready");
       })
       .catch(() => setStatus("error"));
 
     return () => markers.forEach((m) => m.setMap(null));
-  }, [listings]);
+  }, [mappable]);
 
   if (status === "error") {
     return (
@@ -60,5 +65,15 @@ export default function ListingsMap({ listings }: { listings: ListingSummary[] }
     );
   }
 
-  return <div ref={mapRef} className="h-96 w-full overflow-hidden rounded-2xl border border-ink/10 shadow-soft" />;
+  return (
+    <div>
+      <div ref={mapRef} className="h-96 w-full overflow-hidden rounded-2xl border border-ink/10 shadow-soft" />
+      {unmappedCount > 0 && (
+        <p className="mt-2 text-xs text-mute">
+          {unmappedCount} listing{unmappedCount === 1 ? "" : "s"} without a map pin isn&apos;t shown here — switch
+          to grid view to see everything.
+        </p>
+      )}
+    </div>
+  );
 }

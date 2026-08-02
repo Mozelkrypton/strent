@@ -10,20 +10,20 @@ export default function NewBuildingPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [location, setLocation] = useState<{ latitude: number; longitude: number; address: string } | null>(null);
+  const [location, setLocation] = useState<{ latitude: number | null; longitude: number | null; address: string } | null>(null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
   const handleLocationChange = useCallback(
-    (loc: { latitude: number; longitude: number; address: string }) => setLocation(loc),
+    (loc: { latitude: number | null; longitude: number | null; address: string }) => setLocation(loc),
     []
   );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    if (!location) {
-      setError("Search or click the map to set the building's location.");
+    if (!location || !location.address.trim()) {
+      setError("Enter an address for the building.");
       return;
     }
     setSaving(true);
@@ -34,7 +34,7 @@ export default function NewBuildingPage() {
         body: JSON.stringify({
           name,
           description,
-          address: location.address || "Pinned location",
+          address: location.address,
           latitude: location.latitude,
           longitude: location.longitude
         })

@@ -2,25 +2,42 @@
 
 import { useEffect, useRef, useState } from "react";
 import { loadGoogleMaps } from "@/lib/loadGoogleMaps";
+import TextField from "@/components/TextField";
+
+type LocationValue = { latitude: number | null; longitude: number | null; address: string };
 
 type LocationPickerProps = {
-  onChange: (loc: { latitude: number; longitude: number; address: string }) => void;
+  onChange: (loc: LocationValue) => void;
 };
 
 const NAIROBI = { lat: -1.2921, lng: 36.8219 };
 
+// The map pin is a nice-to-have, not a requirement — Google Maps needs a
+// billed API key, which not every landlord will have set up. Typing a plain
+// address always works; the map is just a faster way to get exact coordinates
+// when it's available.
 export default function LocationPicker({ onChange }: LocationPickerProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [mapStatus, setMapStatus] = useState<"loading" | "ready" | "unavailable">("loading");
+  const [manualAddress, setManualAddress] = useState("");
   const [pickedAddress, setPickedAddress] = useState("");
+
+  function handleManualAddressChange(value: string) {
+    setManualAddress(value);
+    // Typing manually clears any map pin — the two are mutually exclusive
+    // sources for the same field, so don't send stale coordinates for a
+    // now-different address.
+    onChange({ latitude: null, longitude: null, address: value });
+  }
 
   useEffect(() => {
     let marker: google.maps.Marker | null = null;
+    let cancelled = false;
 
     loadGoogleMaps()
       .then((g) => {
-        if (!mapRef.current) return;
+        if (cancelled || !mapRef.current) return;
 
         const map = new g.maps.Map(mapRef.current, {
           center: NAIROBI,
@@ -37,11 +54,13 @@ export default function LocationPicker({ onChange }: LocationPickerProps) {
 
           if (address) {
             setPickedAddress(address);
+            setManualAddress(address);
             onChange({ latitude, longitude, address });
           } else {
             new g.maps.Geocoder().geocode({ location: position }, (results, geoStatus) => {
               const resolvedAddress = geoStatus === "OK" && results?.[0] ? results[0].formatted_address : "";
               setPickedAddress(resolvedAddress);
+              setManualAddress(resolvedAddress);
               onChange({ latitude, longitude, address: resolvedAddress });
             });
           }
@@ -66,33 +85,45 @@ export default function LocationPicker({ onChange }: LocationPickerProps) {
           });
         }
 
-        setStatus("ready");
+        setMapStatus("ready");
       })
-      .catch(() => setStatus("error"));
+      .catch(() => setMapStatus("unavailable"));
+
+    return () => {
+      cancelled = true;
+    };
   }, [onChange]);
 
-  if (status === "error") {
-    return (
-      <div className="rounded-2xl border border-ink/10 bg-mute/10 p-4 text-sm text-mute">
-        Map picker needs NEXT_PUBLIC_GOOGLE_MAPS_API_KEY set (with the Maps JavaScript + Places
-        APIs enabled) to work.
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <input
-        ref={searchRef}
-        type="text"
-        placeholder="Search an address or estate (e.g. Ruaka, Nairobi)"
-        className="mb-2 w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm font-body shadow-sm transition-all duration-150 ease-smooth focus:border-clay focus:outline-none focus:ring-2 focus:ring-clay/40"
+    <div className="space-y-3">
+      <TextField
+        placeholder="Address (e.g. Ruaka, Nairobi)"
+        value={manualAddress}
+        onChange={(e) => handleManualAddressChange(e.target.value)}
       />
-      <div ref={mapRef} className="h-72 w-full overflow-hidden rounded-2xl border border-ink/10 bg-mute/10 shadow-soft" />
-      <p className="mt-2 text-xs text-mute">
-        Search above, or click anywhere on the map to drop the pin exactly on the building.
-        {pickedAddress && <span className="block font-medium text-ink">Selected: {pickedAddress}</span>}
-      </p>
+
+      {mapStatus === "unavailable" ? (
+        <p className="text-xs text-mute">
+          Map pin isn&apos;t set up for this deployment — the address above is all that&apos;s needed. A map
+          pin can be added later once Google Maps is configured.
+        </p>
+      ) : (
+        <div>
+          <input
+            ref={searchRef}
+            type="text"
+            placeholder="Or search here to drop an exact pin (optional)"
+            className="mb-2 w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm font-body shadow-sm transition-all duration-150 ease-smooth focus:border-clay focus:outline-none focus:ring-2 focus:ring-clay/40"
+          />
+          <div ref={mapRef} className="h-72 w-full overflow-hidden rounded-2xl border border-ink/10 bg-mute/10 shadow-soft" />
+          <p className="mt-2 text-xs text-mute">
+            {mapStatus === "loading"
+              ? "Loading map…"
+              : "Optional — search above or click the map to drop an exact pin."}
+            {pickedAddress && <span className="block font-medium text-ink">Pin set: {pickedAddress}</span>}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

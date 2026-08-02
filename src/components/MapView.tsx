@@ -1,6 +1,6 @@
 type MapViewProps = {
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   label?: string;
 };
 
@@ -9,6 +9,15 @@ type MapViewProps = {
 // A multi-pin map for the browse page can move to @react-google-maps/api later.
 export default function MapView({ latitude, longitude, label }: MapViewProps) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  if (latitude == null || longitude == null) {
+    return (
+      <div className="flex h-64 w-full items-center justify-center rounded-2xl border border-ink/10 bg-mute/10 text-sm text-mute">
+        No map pin for this one yet — see the address above.
+      </div>
+    );
+  }
+
   const query = encodeURIComponent(label ? `${label}@${latitude},${longitude}` : `${latitude},${longitude}`);
   const src = apiKey
     ? `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${query}&zoom=15`

@@ -17,7 +17,7 @@ export default function NewListingPage() {
     bathrooms: "1"
   });
   const [unitType, setUnitType] = useState<UnitTypeKey>("ONE_BEDROOM");
-  const [location, setLocation] = useState<{ latitude: number; longitude: number; address: string } | null>(null);
+  const [location, setLocation] = useState<{ latitude: number | null; longitude: number | null; address: string } | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [error, setError] = useState("");
 
@@ -26,7 +26,7 @@ export default function NewListingPage() {
   }
 
   const handleLocationChange = useCallback(
-    (loc: { latitude: number; longitude: number; address: string }) => setLocation(loc),
+    (loc: { latitude: number | null; longitude: number | null; address: string }) => setLocation(loc),
     []
   );
 
@@ -37,8 +37,8 @@ export default function NewListingPage() {
       setError("Add at least one photo — listings without photos get far less interest.");
       return;
     }
-    if (!location) {
-      setError("Search or click the map to set the house's location.");
+    if (!location || !location.address.trim()) {
+      setError("Enter an address for the house.");
       return;
     }
     const res = await fetch("/api/listings", {
@@ -49,7 +49,7 @@ export default function NewListingPage() {
         price: Number(form.price),
         bathrooms: Number(form.bathrooms),
         unitType,
-        address: location.address || "Pinned location",
+        address: location.address,
         latitude: location.latitude,
         longitude: location.longitude,
         imageUrls

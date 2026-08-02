@@ -38,8 +38,8 @@ export async function POST(req: NextRequest) {
 
   const { name, address, latitude, longitude, description } = await req.json();
 
-  if (!name || !address || latitude == null || longitude == null) {
-    return NextResponse.json({ error: "Name, address, and map location are required" }, { status: 400 });
+  if (!name || !address) {
+    return NextResponse.json({ error: "Name and address are required" }, { status: 400 });
   }
 
   const building = await prisma.building.create({

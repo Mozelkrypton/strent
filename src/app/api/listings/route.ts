@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { title, description, price, bedrooms, bathrooms, address, latitude, longitude, imageUrls, unitType } = body;
 
-  if (!title || !description || !price || !address || latitude == null || longitude == null) {
+  if (!title || !description || !price || !address) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 

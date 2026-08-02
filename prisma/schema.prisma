@@ -139,8 +139,8 @@ model Building {
   id          String   @id @default(cuid())
   name        String
   address     String
-  latitude    Float
-  longitude   Float
+  latitude    Float? // null when the landlord skipped the map picker
+  longitude   Float?
   description String?
   createdAt   DateTime @default(now())
 
@@ -162,8 +162,8 @@ model Listing {
   unitType    UnitType? // real unit-size type for new listings (bedsitter, 1BR..6BR)
   bathrooms   Int
   address     String // building's address is copied here on create, kept for standalone listings
-  latitude    Float
-  longitude   Float
+  latitude    Float? // null when the landlord skipped the map picker
+  longitude   Float?
   status      ListingStatus @default(AVAILABLE)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
