@@ -56,6 +56,7 @@ model User {
   messages              Message[]
   bookings              Booking[]              @relation("TenantBookings")
   reviews               Review[]
+  savedListings         SavedListing[]         @relation("TenantSavedListings")
   sessions              Session[]
   verificationRequests  VerificationRequest[] @relation("LandlordVerificationRequests")
   reviewedVerifications VerificationRequest[] @relation("AdminReviewedVerifications")
@@ -180,6 +181,7 @@ model Listing {
   conversations Conversation[]
   bookings      Booking[]
   reviews       Review[]
+  savedBy       SavedListing[]
 
   // Cached aggregates, recomputed by ReviewService whenever a review is
   // written — lets the browse grid sort/filter by any category cheaply,
@@ -311,4 +313,18 @@ model Review {
 
   @@unique([listingId, tenantId])
   @@index([listingId])
+}
+
+// A tenant's shortlist — the rental equivalent of a "cart": houses they're
+// considering, not something they buy multiples of.
+model SavedListing {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    User     @relation("TenantSavedListings", fields: [tenantId], references: [id], onDelete: Cascade)
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([tenantId, listingId])
+  @@index([tenantId])
 }
