@@ -73,9 +73,6 @@ model User {
   reviewedVerifications VerificationRequest[]  @relation("AdminReviewedVerifications")
   adminActions          AdminActionLog[]
   sessions              Session[]
-  verificationRequests  VerificationRequest[] @relation("LandlordVerificationRequests")
-  reviewedVerifications VerificationRequest[] @relation("AdminReviewedVerifications")
-  adminActions          AdminActionLog[]
   emailVerificationTokens EmailVerificationToken[]
   passwordResetTokens   PasswordResetToken[]
   loginEvents           LoginEvent[]
@@ -261,52 +258,7 @@ model Booking {
   updatedAt     DateTime      @updatedAt
 }
 
-enum VerificationStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-// A landlord's submission to earn the Verified badge — ID + proof of
-// ownership/authority to let out the property, reviewed by an admin.
-model VerificationRequest {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation("LandlordVerificationRequests", fields: [userId], references: [id], onDelete: Cascade)
-
-  idDocumentUrl       String
-  ownershipDocumentUrl String
-  note                String? // anything the landlord wants the reviewer to know
-
-  status           VerificationStatus @default(PENDING)
-  rejectionReason  String?
-  reviewedById     String?
-  reviewedBy       User?              @relation("AdminReviewedVerifications", fields: [reviewedById], references: [id], onDelete: SetNull)
-  reviewedAt       DateTime?
-
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@index([status])
-}
-
-// Every privileged action an admin takes — who, what, on whom, when.
-// This is the accountability layer that makes the admin role safe to grant.
-model AdminActionLog {
-  id       String @id @default(cuid())
-  adminId  String
-  admin    User   @relation(fields: [adminId], references: [id], onDelete: Cascade)
-
-  action     String // e.g. "user.suspend", "listing.remove", "verification.approve"
-  targetType String // e.g. "User", "Listing", "VerificationRequest"
-  targetId   String
-  detail     String?
-
-  createdAt DateTime @default(now())
-
-  @@index([adminId])
-  @@index([targetType, targetId])
-}
+// One review per tenant per listing. Rated across categories rather than a
 // single star, so browse/sort can be tailored to what each tenant actually
 // cares about (e.g. someone prioritizing water reliability over decor).
 model Review {
