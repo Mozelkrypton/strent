@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/security/currentUser";
+import { adminAuditLogger } from "@/lib/admin/auditLog";
 
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const listing = await prisma.listing.findUnique({
@@ -86,6 +87,13 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return NextResponse.json({ error: "You don't have permission to delete this listing" }, { status: 403 });
   }
 
+  const isAdminModeration = session.role === "ADMIN" && listing.landlordId !== session.userId;
+
   await prisma.listing.delete({ where: { id: params.id } });
+
+  if (isAdminModeration) {
+    await adminAuditLogger.log(session.userId, "listing.remove", "Listing", params.id, listing.title);
+  }
+
   return NextResponse.json({ ok: true });
 }

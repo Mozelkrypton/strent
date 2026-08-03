@@ -41,6 +41,11 @@ export default async function Navbar() {
           <div className="hidden items-center gap-4 text-sm font-medium text-ink sm:flex">
             {session ? (
               <>
+                {session.user.role === "ADMIN" && (
+                  <Link href="/admin" className="transition-colors hover:text-primary">
+                    Admin
+                  </Link>
+                )}
                 {session.user.role === "TENANT" && (
                   <Link href="/cart" className="transition-colors hover:text-primary">
                     Saved

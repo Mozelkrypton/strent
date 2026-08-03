@@ -13,6 +13,7 @@ export type LoginResult =
   | { status: "ok"; userId: string; sessionToken: string }
   | { status: "2fa_required"; challengeToken: string }
   | { status: "locked"; lockedUntil: Date }
+  | { status: "suspended" }
   | { status: "rate_limited"; retryAfterMs?: number }
   | { status: "invalid" };
 
@@ -54,6 +55,11 @@ export class AuthService {
     if (user.lockedUntil && user.lockedUntil > new Date()) {
       await this.audit.logLogin({ userId: user.id, email: normalizedEmail, success: false, reason: "locked_out", req });
       return { status: "locked", lockedUntil: user.lockedUntil };
+    }
+
+    if (user.suspended) {
+      await this.audit.logLogin({ userId: user.id, email: normalizedEmail, success: false, reason: "suspended", req });
+      return { status: "suspended" };
     }
 
     const passwordOk = await verifyPassword(password, user.passwordHash);

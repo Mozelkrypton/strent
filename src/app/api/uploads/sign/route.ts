@@ -10,7 +10,7 @@ cloudinary.config({
 
 // POST /api/uploads/sign — returns a signature so the browser can upload straight to
 // Cloudinary without the file ever passing through our server (faster, cheaper).
-// Body: { context?: "listing" | "avatar" } — defaults to "listing" for backwards compatibility.
+// Body: { context?: "listing" | "avatar" | "verification" } — defaults to "listing".
 export async function POST(req: NextRequest) {
   const session = await getSessionUser(req);
   if (!session) {
@@ -18,12 +18,18 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const context: "listing" | "avatar" = body.context === "avatar" ? "avatar" : "listing";
+  const context: "listing" | "avatar" | "verification" =
+    body.context === "avatar" ? "avatar" : body.context === "verification" ? "verification" : "listing";
 
   let folder: string;
   if (context === "avatar") {
     // Any signed-in user can upload their own avatar, into their own folder.
     folder = `strent/avatars/${session.userId}`;
+  } else if (context === "verification") {
+    if (session.role !== "LANDLORD") {
+      return NextResponse.json({ error: "Only landlords submit verification documents" }, { status: 403 });
+    }
+    folder = `strent/verification/${session.userId}`;
   } else {
     if (session.role !== "LANDLORD") {
       return NextResponse.json({ error: "Only landlords can upload listing photos" }, { status: 403 });

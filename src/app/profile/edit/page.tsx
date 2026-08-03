@@ -59,6 +59,7 @@ export default function EditProfilePage() {
       </header>
 
       <BasicInfoSection profile={profile} onUpdate={setProfile} />
+      {profile.role === "LANDLORD" && <VerificationSection verified={profile.verified} />}
       <PasswordSection />
       <TwoFactorSection enabled={profile.twoFactorEnabled} onChange={(v) => setProfile({ ...profile, twoFactorEnabled: v })} />
       <SessionsSection />
@@ -137,6 +138,102 @@ function BasicInfoSection({ profile, onUpdate }: { profile: Profile; onUpdate: (
         {message && <p className="text-sm text-ink">{message}</p>}
         <Button disabled={saving}>{saving ? "Saving…" : "Save changes"}</Button>
       </form>
+    </section>
+  );
+}
+
+type VerificationState = {
+  verified: boolean;
+  request: { status: "PENDING" | "APPROVED" | "REJECTED"; rejectionReason: string | null } | null;
+};
+
+function VerificationSection({ verified }: { verified: boolean }) {
+  const [state, setState] = useState<VerificationState | null>(null);
+  const [idDocumentUrl, setIdDocumentUrl] = useState("");
+  const [ownershipDocumentUrl, setOwnershipDocumentUrl] = useState("");
+  const [note, setNote] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  function load() {
+    fetch("/api/verification")
+      .then((res) => res.json())
+      .then(setState);
+  }
+
+  useEffect(load, []);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    if (!idDocumentUrl || !ownershipDocumentUrl) {
+      setError("Upload both documents before submitting.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idDocumentUrl, ownershipDocumentUrl, note })
+      });
+      if (res.ok) {
+        load();
+      } else {
+        const data = await res.json();
+        setError(data.error ?? "Something went wrong");
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (!state) return null;
+
+  return (
+    <section>
+      <h2 className="font-display text-lg font-bold text-ink">Get verified</h2>
+      <p className="mt-1 text-sm text-mute">
+        Confirms your identity and your right to let out your properties. Tenants see a Verified badge on your
+        listings once approved.
+      </p>
+
+      {verified ? (
+        <p className="mt-4 inline-block rounded-full bg-primary-light px-3.5 py-1.5 text-sm font-semibold text-primary-dark">
+          You&apos;re verified
+        </p>
+      ) : state.request?.status === "PENDING" ? (
+        <p className="mt-4 text-sm text-ink">Your verification request is pending review.</p>
+      ) : (
+        <>
+          {state.request?.status === "REJECTED" && (
+            <p className="mt-4 text-sm text-danger">
+              Your last request was rejected: {state.request.rejectionReason}. You can submit again below.
+            </p>
+          )}
+          <form onSubmit={submit} className="mt-4 space-y-4">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-ink">ID document</label>
+              <ImageUploader context="verification" onUploaded={(urls) => setIdDocumentUrl(urls[0])} />
+              {idDocumentUrl && <p className="mt-1 text-xs text-primary-dark">Uploaded ✓</p>}
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-ink">
+                Proof of ownership or authority to let (title deed, lease agreement, etc.)
+              </label>
+              <ImageUploader context="verification" onUploaded={(urls) => setOwnershipDocumentUrl(urls[0])} />
+              {ownershipDocumentUrl && <p className="mt-1 text-xs text-primary-dark">Uploaded ✓</p>}
+            </div>
+            <TextField
+              placeholder="Anything the reviewer should know (optional)"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            />
+            {error && <p className="text-sm text-danger">{error}</p>}
+            <Button disabled={submitting}>{submitting ? "Submitting…" : "Submit for review"}</Button>
+          </form>
+        </>
+      )}
     </section>
   );
 }

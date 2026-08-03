@@ -1,12 +1,16 @@
 import type { NextRequest } from "next/server";
 import { sessionManager, SESSION_COOKIE } from "./sessionManager";
 import type { Role } from "@/lib/auth";
+import type { AdminLevel } from "@prisma/client";
 
 export type SessionUser = {
   userId: string;
   role: Role;
   email: string;
   name: string;
+  twoFactorEnabled: boolean;
+  adminLevel: AdminLevel | null;
+  suspended: boolean;
 };
 
 /**
@@ -29,7 +33,10 @@ export async function getSessionUser(req: NextRequest | Request): Promise<Sessio
     userId: session.user.id,
     role: session.user.role as Role,
     email: session.user.email,
-    name: session.user.name
+    name: session.user.name,
+    twoFactorEnabled: session.user.twoFactorEnabled,
+    adminLevel: session.user.adminLevel,
+    suspended: session.user.suspended
   };
 }
 

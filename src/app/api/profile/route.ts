@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
       bio: true,
       avatarUrl: true,
       role: true,
+      adminLevel: true,
       verified: true,
       emailVerified: true,
       twoFactorEnabled: true,

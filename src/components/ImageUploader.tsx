@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 
 type UploaderProps = {
   onUploaded: (urls: string[]) => void;
-  context?: "listing" | "avatar";
+  context?: "listing" | "avatar" | "verification";
 };
 
 type UploadState = { name: string; status: "uploading" | "done" | "error"; url?: string };
