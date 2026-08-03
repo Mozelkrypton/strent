@@ -6,9 +6,10 @@ import Link from "next/link";
 type MoreMenuProps = {
   signedIn: boolean;
   firstName?: string;
+  isTenant?: boolean;
 };
 
-export default function MoreMenu({ signedIn, firstName }: MoreMenuProps) {
+export default function MoreMenu({ signedIn, firstName, isTenant }: MoreMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -55,6 +56,7 @@ export default function MoreMenu({ signedIn, firstName }: MoreMenuProps) {
           <div className="pt-2">
             {signedIn ? (
               <>
+                {isTenant && <MenuLink href="/cart" label="Saved houses" onNavigate={() => setOpen(false)} />}
                 <MenuLink href="/profile/edit" label={firstName ? `${firstName}'s profile` : "Your profile"} onNavigate={() => setOpen(false)} />
                 <button
                   onClick={handleSignOut}
