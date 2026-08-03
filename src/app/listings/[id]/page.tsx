@@ -4,6 +4,7 @@ import MapView from "@/components/MapView";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import StarRating from "@/components/StarRating";
 import ReviewsSection from "@/components/ReviewsSection";
+import SaveButton from "@/components/SaveButton";
 import type { ListingDetail } from "@/types";
 
 async function getListing(id: string): Promise<ListingDetail | null> {
@@ -71,9 +72,12 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
             {listing.bedrooms} bed · {listing.bathrooms} bath
           </p>
         </div>
-        <span className="rounded-full bg-primary-light px-3.5 py-1.5 text-sm font-semibold text-primary-dark">
-          {listing.status === "AVAILABLE" ? "Available now" : listing.status}
-        </span>
+        <div className="flex items-center gap-3">
+          <SaveButton listingId={listing.id} />
+          <span className="rounded-full bg-primary-light px-3.5 py-1.5 text-sm font-semibold text-primary-dark">
+            {listing.status === "AVAILABLE" ? "Available now" : listing.status}
+          </span>
+        </div>
       </div>
 
       <p className="mt-6 whitespace-pre-line leading-relaxed text-ink/80">{listing.description}</p>
