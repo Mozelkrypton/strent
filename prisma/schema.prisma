@@ -16,6 +16,16 @@ enum Role {
   ADMIN
 }
 
+// Separate from Role on purpose: Role is "what kind of user is this",
+// AdminLevel is "how much staff power does this admin have". Only set
+// when role = ADMIN. SUPER_ADMIN can manage other admins; ADMIN can't.
+// A third, narrower VERIFIER tier (verification queue only, nothing else)
+// can slot in here later without a schema rewrite.
+enum AdminLevel {
+  SUPER_ADMIN
+  ADMIN
+}
+
 enum ListingStatus {
   AVAILABLE
   BOOKED
@@ -38,6 +48,8 @@ model User {
   role         Role     @default(TENANT)
   verified     Boolean  @default(false) // landlord ID/ownership check passed
   suspended    Boolean  @default(false) // admin-disabled account; blocks login
+  adminLevel   AdminLevel? // only set when role = ADMIN
+  region       String? // reserved for future region-scoped admins; unused for now
   avatarUrl    String?
   bio          String?
   createdAt    DateTime @default(now())
@@ -57,6 +69,9 @@ model User {
   bookings              Booking[]              @relation("TenantBookings")
   reviews               Review[]
   savedListings         SavedListing[]         @relation("TenantSavedListings")
+  verificationRequests  VerificationRequest[]  @relation("LandlordVerificationRequests")
+  reviewedVerifications VerificationRequest[]  @relation("AdminReviewedVerifications")
+  adminActions          AdminActionLog[]
   sessions              Session[]
   verificationRequests  VerificationRequest[] @relation("LandlordVerificationRequests")
   reviewedVerifications VerificationRequest[] @relation("AdminReviewedVerifications")
@@ -327,4 +342,51 @@ model SavedListing {
 
   @@unique([tenantId, listingId])
   @@index([tenantId])
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// A landlord's submission to earn the Verified badge — ID + proof of
+// ownership/authority to let out property, reviewed by an admin.
+model VerificationRequest {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("LandlordVerificationRequests", fields: [userId], references: [id], onDelete: Cascade)
+
+  idDocumentUrl        String
+  ownershipDocumentUrl String
+  note                 String? // anything the landlord wants the reviewer to know
+
+  status          VerificationStatus @default(PENDING)
+  rejectionReason String?
+  reviewedById    String?
+  reviewedBy      User?              @relation("AdminReviewedVerifications", fields: [reviewedById], references: [id], onDelete: SetNull)
+  reviewedAt      DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([status])
+}
+
+// Every privileged action an admin takes — who, what, on whom, when. This is
+// the accountability layer that makes granting the admin role safe.
+model AdminActionLog {
+  id      String @id @default(cuid())
+  adminId String
+  admin   User   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  action     String // e.g. "user.suspend", "listing.remove", "verification.approve"
+  targetType String // e.g. "User", "Listing", "VerificationRequest"
+  targetId   String
+  detail     String?
+
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+  @@index([targetType, targetId])
 }
