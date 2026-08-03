@@ -41,6 +41,11 @@ export default async function Navbar() {
           <div className="hidden items-center gap-4 text-sm font-medium text-ink sm:flex">
             {session ? (
               <>
+                {session.user.role === "TENANT" && (
+                  <Link href="/cart" className="transition-colors hover:text-primary">
+                    Saved
+                  </Link>
+                )}
                 <Link href="/profile/edit" className="transition-colors hover:text-primary">
                   {session.user.name.split(" ")[0]}
                 </Link>
@@ -55,7 +60,7 @@ export default async function Navbar() {
               </Link>
             )}
           </div>
-          <MoreMenu signedIn={!!session} firstName={session?.user.name.split(" ")[0]} />
+          <MoreMenu signedIn={!!session} firstName={session?.user.name.split(" ")[0]} isTenant={session?.user.role === "TENANT"} />
         </div>
       </div>
     </header>
