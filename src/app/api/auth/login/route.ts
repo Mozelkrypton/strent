@@ -35,6 +35,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    case "suspended":
+      return NextResponse.json(
+        { error: "This account has been suspended. Contact support if you think this is a mistake." },
+        { status: 403 }
+      );
+
     case "rate_limited": {
       const seconds = Math.max(1, Math.ceil((result.retryAfterMs ?? 0) / 1000));
       return NextResponse.json(
