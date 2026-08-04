@@ -5,6 +5,7 @@ import VerifiedBadge from "@/components/VerifiedBadge";
 import StarRating from "@/components/StarRating";
 import ReviewsSection from "@/components/ReviewsSection";
 import SaveButton from "@/components/SaveButton";
+import BookingButton from "@/components/BookingButton";
 import type { ListingDetail } from "@/types";
 
 async function getListing(id: string): Promise<ListingDetail | null> {
@@ -96,6 +97,11 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
           {listing.landlord.verified && <VerifiedBadge className="mt-1" />}
         </div>
       </div>
+
+      <div className="mt-4">
+        <BookingButton listingId={listing.id} price={listing.price} />
+      </div>
+
       <p className="mt-3 text-sm text-mute">
         Sign in as a tenant to message this landlord about viewing, price, or booking.
       </p>
