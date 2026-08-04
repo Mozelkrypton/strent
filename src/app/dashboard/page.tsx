@@ -27,6 +27,12 @@ export default async function DashboardPage() {
         </div>
         <div className="flex gap-2">
           <Link
+            href="/dashboard/bookings"
+            className="rounded-full bg-surface px-5 py-2.5 text-sm font-semibold text-ink shadow-sm ring-1 ring-ink/10 transition-colors hover:bg-mute/5"
+          >
+            Booking requests
+          </Link>
+          <Link
             href="/dashboard/listings/new"
             className="rounded-full bg-surface px-5 py-2.5 text-sm font-semibold text-ink shadow-sm ring-1 ring-ink/10 transition-colors hover:bg-mute/5"
           >
