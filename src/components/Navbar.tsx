@@ -47,8 +47,18 @@ export default async function Navbar() {
                   </Link>
                 )}
                 {session.user.role === "TENANT" && (
-                  <Link href="/cart" className="transition-colors hover:text-primary">
-                    Saved
+                  <>
+                    <Link href="/cart" className="transition-colors hover:text-primary">
+                      Saved
+                    </Link>
+                    <Link href="/bookings" className="transition-colors hover:text-primary">
+                      Bookings
+                    </Link>
+                  </>
+                )}
+                {session.user.role === "LANDLORD" && (
+                  <Link href="/dashboard/bookings" className="transition-colors hover:text-primary">
+                    Bookings
                   </Link>
                 )}
                 <Link href="/profile/edit" className="transition-colors hover:text-primary">
@@ -65,7 +75,12 @@ export default async function Navbar() {
               </Link>
             )}
           </div>
-          <MoreMenu signedIn={!!session} firstName={session?.user.name.split(" ")[0]} isTenant={session?.user.role === "TENANT"} />
+          <MoreMenu
+            signedIn={!!session}
+            firstName={session?.user.name.split(" ")[0]}
+            isTenant={session?.user.role === "TENANT"}
+            isLandlord={session?.user.role === "LANDLORD"}
+          />
         </div>
       </div>
     </header>
