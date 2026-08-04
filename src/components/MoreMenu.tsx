@@ -7,9 +7,10 @@ type MoreMenuProps = {
   signedIn: boolean;
   firstName?: string;
   isTenant?: boolean;
+  isLandlord?: boolean;
 };
 
-export default function MoreMenu({ signedIn, firstName, isTenant }: MoreMenuProps) {
+export default function MoreMenu({ signedIn, firstName, isTenant, isLandlord }: MoreMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -56,7 +57,15 @@ export default function MoreMenu({ signedIn, firstName, isTenant }: MoreMenuProp
           <div className="pt-2">
             {signedIn ? (
               <>
-                {isTenant && <MenuLink href="/cart" label="Saved houses" onNavigate={() => setOpen(false)} />}
+                {isTenant && (
+                  <>
+                    <MenuLink href="/cart" label="Saved houses" onNavigate={() => setOpen(false)} />
+                    <MenuLink href="/bookings" label="Your booking requests" onNavigate={() => setOpen(false)} />
+                  </>
+                )}
+                {isLandlord && (
+                  <MenuLink href="/dashboard/bookings" label="Booking requests" onNavigate={() => setOpen(false)} />
+                )}
                 <MenuLink href="/profile/edit" label={firstName ? `${firstName}'s profile` : "Your profile"} onNavigate={() => setOpen(false)} />
                 <button
                   onClick={handleSignOut}
