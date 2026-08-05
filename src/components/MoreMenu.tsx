@@ -57,6 +57,7 @@ export default function MoreMenu({ signedIn, firstName, isTenant, isLandlord }: 
           <div className="pt-2">
             {signedIn ? (
               <>
+                <MenuLink href="/messages" label="Messages" onNavigate={() => setOpen(false)} />
                 {isTenant && (
                   <>
                     <MenuLink href="/cart" label="Saved houses" onNavigate={() => setOpen(false)} />
