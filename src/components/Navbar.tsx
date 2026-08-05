@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { sessionManager, SESSION_COOKIE } from "@/lib/security/sessionManager";
+import { getUnreadMessageCount } from "@/lib/messaging/conversationAccess";
 import SignOutButton from "./SignOutButton";
 import MoreMenu from "./MoreMenu";
 
 export default async function Navbar() {
   const token = cookies().get(SESSION_COOKIE)?.value;
   const session = token ? await sessionManager.validate(token) : null;
+  const unreadCount = session ? await getUnreadMessageCount(session.user.id, session.user.role) : 0;
 
   return (
     <header className="sticky top-0 z-30 border-b border-ink/5 bg-surface/80 backdrop-blur-md">
@@ -44,6 +46,16 @@ export default async function Navbar() {
                 {session.user.role === "ADMIN" && (
                   <Link href="/admin" className="transition-colors hover:text-primary">
                     Admin
+                  </Link>
+                )}
+                {session.user.role !== "ADMIN" && (
+                  <Link href="/messages" className="relative transition-colors hover:text-primary">
+                    Messages
+                    {unreadCount > 0 && (
+                      <span className="absolute -right-3 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
+                        {unreadCount}
+                      </span>
+                    )}
                   </Link>
                 )}
                 {session.user.role === "TENANT" && (
