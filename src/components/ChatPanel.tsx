@@ -6,12 +6,19 @@ import type { MessageDto } from "@/types";
 export default function ChatPanel({ conversationId }: { conversationId: string }) {
   const [messages, setMessages] = useState<MessageDto[]>([]);
   const [draft, setDraft] = useState("");
+  const [myUserId, setMyUserId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   async function loadMessages() {
     const res = await fetch(`/api/messages?conversationId=${conversationId}`);
     if (res.ok) setMessages(await res.json());
   }
+
+  useEffect(() => {
+    fetch("/api/profile")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((profile) => setMyUserId(profile?.id ?? null));
+  }, []);
 
   useEffect(() => {
     loadMessages();
@@ -39,11 +46,28 @@ export default function ChatPanel({ conversationId }: { conversationId: string }
   return (
     <div className="flex h-96 flex-col rounded-2xl border border-ink/10 bg-white shadow-soft">
       <div className="flex-1 space-y-2 overflow-y-auto p-4">
-        {messages.map((m) => (
-          <div key={m.id} className="max-w-[75%] rounded-xl bg-mustard/20 px-3 py-2 text-sm shadow-sm">
-            {m.content}
-          </div>
-        ))}
+        {messages.map((m) => {
+          const mine = m.senderId === myUserId;
+          return (
+            <div key={m.id} className={`flex flex-col ${mine ? "items-end" : "items-start"}`}>
+              <div
+                className={`max-w-[75%] rounded-xl px-3 py-2 text-sm shadow-sm ${
+                  mine ? "bg-primary text-white" : "bg-mute/10 text-ink"
+                }`}
+              >
+                {m.content}
+              </div>
+              <span className="mt-0.5 px-1 text-[11px] text-mute">
+                {new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              </span>
+            </div>
+          );
+        })}
+        {messages.length === 0 && (
+          <p className="py-8 text-center text-sm text-mute">
+            No messages yet — say hello and ask about viewing, price, or availability.
+          </p>
+        )}
         <div ref={bottomRef} />
       </div>
       <div className="flex gap-2 border-t border-ink/10 p-3">
@@ -52,11 +76,11 @@ export default function ChatPanel({ conversationId }: { conversationId: string }
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           placeholder="Message about payment, viewing, or booking..."
-          className="flex-1 rounded-lg border border-ink/15 px-3 py-2 text-sm font-body shadow-sm transition-all duration-150 ease-smooth focus:border-clay focus:outline-none focus:ring-2 focus:ring-clay/40"
+          className="flex-1 rounded-lg border border-ink/15 px-3 py-2 text-sm font-body shadow-sm transition-all duration-150 ease-smooth focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
         />
         <button
           onClick={sendMessage}
-          className="rounded-lg bg-clay px-4 py-2 text-sm font-medium text-paper shadow-sm transition-all duration-200 ease-smooth hover:-translate-y-0.5 hover:shadow-card"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-all duration-200 ease-smooth hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-card"
         >
           Send
         </button>
