@@ -15,6 +15,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "listingId is required" }, { status: 400 });
   }
 
+  const listing = await prisma.listing.findUnique({ where: { id: listingId } });
+  if (!listing) return NextResponse.json({ error: "Listing not found" }, { status: 404 });
+
   const conversation = await prisma.conversation.upsert({
     where: { listingId_tenantId: { listingId, tenantId: session.userId } },
     update: {},
@@ -24,19 +27,42 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(conversation, { status: 201 });
 }
 
-// GET /api/conversations — list the current user's threads (tenant view)
+// GET /api/conversations — the signed-in user's threads. Tenants see
+// conversations they started; landlords see conversations about any of
+// their listings. Same endpoint, branched by role, since "my inbox" means
+// something different depending which side of the chat you're on.
 export async function GET(req: NextRequest) {
   const session = await getSessionUser(req);
   if (!session) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   const conversations = await prisma.conversation.findMany({
-    where: { tenantId: session.userId },
+    where:
+      session.role === "LANDLORD"
+        ? { listing: { landlordId: session.userId } }
+        : { tenantId: session.userId },
     include: {
-      listing: { select: { id: true, title: true, price: true } },
+      listing: { select: { id: true, title: true, price: true, landlordId: true, landlord: { select: { name: true } } } },
+      tenant: { select: { id: true, name: true } },
       messages: { orderBy: { createdAt: "desc" }, take: 1 }
     },
     orderBy: { createdAt: "desc" }
   });
 
-  return NextResponse.json(conversations);
+  const withUnread = await Promise.all(
+    conversations.map(async (c) => {
+      const unreadCount = await prisma.message.count({
+        where: { conversationId: c.id, senderId: { not: session.userId }, readAt: null }
+      });
+      return {
+        id: c.id,
+        listing: { id: c.listing.id, title: c.listing.title, price: c.listing.price },
+        otherParty: session.role === "LANDLORD" ? c.tenant.name : c.listing.landlord.name,
+        lastMessage: c.messages[0]?.content ?? null,
+        lastMessageAt: c.messages[0]?.createdAt ?? c.createdAt,
+        unreadCount
+      };
+    })
+  );
+
+  return NextResponse.json(withUnread);
 }
