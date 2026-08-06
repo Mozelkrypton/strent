@@ -4,11 +4,19 @@ import { useEffect, useState } from "react";
 import StarRating from "@/components/StarRating";
 import Button from "@/components/Button";
 import { RATING_CATEGORIES, type CategoryRatings } from "@/lib/reviews/categories";
-import type { ListingRatings, ReviewDto } from "@/types";
+import type { ListingRatings, ReviewDto, CurrentUser } from "@/types";
 
 const EMPTY_RATINGS: CategoryRatings = { location: 0, value: 0, condition: 0, utilities: 0, landlord: 0 };
 
-export default function ReviewsSection({ listingId, ratings }: { listingId: string; ratings: ListingRatings }) {
+export default function ReviewsSection({
+  listingId,
+  ratings,
+  currentUser
+}: {
+  listingId: string;
+  ratings: ListingRatings;
+  currentUser?: CurrentUser;
+}) {
   const [reviews, setReviews] = useState<ReviewDto[] | null>(null);
   const [canReview, setCanReview] = useState(false);
   const [form, setForm] = useState<CategoryRatings>(EMPTY_RATINGS);
@@ -28,10 +36,14 @@ export default function ReviewsSection({ listingId, ratings }: { listingId: stri
         }
       });
 
+    if (currentUser !== undefined) {
+      setCanReview(currentUser?.role === "TENANT");
+      return;
+    }
     fetch("/api/profile")
       .then((res) => (res.ok ? res.json() : null))
       .then((profile) => setCanReview(profile?.role === "TENANT"));
-  }, [listingId]);
+  }, [listingId, currentUser]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
