@@ -48,21 +48,28 @@ export async function GET(req: NextRequest) {
     orderBy: { createdAt: "desc" }
   });
 
-  const withUnread = await Promise.all(
-    conversations.map(async (c) => {
-      const unreadCount = await prisma.message.count({
-        where: { conversationId: c.id, senderId: { not: session.userId }, readAt: null }
-      });
-      return {
-        id: c.id,
-        listing: { id: c.listing.id, title: c.listing.title, price: c.listing.price },
-        otherParty: session.role === "LANDLORD" ? c.tenant.name : c.listing.landlord.name,
-        lastMessage: c.messages[0]?.content ?? null,
-        lastMessageAt: c.messages[0]?.createdAt ?? c.createdAt,
-        unreadCount
-      };
-    })
-  );
+  // One query for every conversation's unread count, instead of a separate
+  // round-trip per conversation — that N+1 pattern is what was making this
+  // endpoint slow, not database distance.
+  const unreadGroups = await prisma.message.groupBy({
+    by: ["conversationId"],
+    where: {
+      conversationId: { in: conversations.map((c) => c.id) },
+      senderId: { not: session.userId },
+      readAt: null
+    },
+    _count: { _all: true }
+  });
+  const unreadByConversation = new Map(unreadGroups.map((g) => [g.conversationId, g._count._all]));
+
+  const withUnread = conversations.map((c) => ({
+    id: c.id,
+    listing: { id: c.listing.id, title: c.listing.title, price: c.listing.price },
+    otherParty: session.role === "LANDLORD" ? c.tenant.name : c.listing.landlord.name,
+    lastMessage: c.messages[0]?.content ?? null,
+    lastMessageAt: c.messages[0]?.createdAt ?? c.createdAt,
+    unreadCount: unreadByConversation.get(c.id) ?? 0
+  }));
 
   return NextResponse.json(withUnread);
 }
