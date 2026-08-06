@@ -2,17 +2,22 @@
 
 import { useEffect, useState } from "react";
 import ChatPanel from "@/components/ChatPanel";
+import type { CurrentUser } from "@/types";
 
-export default function MessageButton({ listingId }: { listingId: string }) {
+export default function MessageButton({ listingId, currentUser }: { listingId: string; currentUser?: CurrentUser }) {
   const [visibility, setVisibility] = useState<"loading" | "hidden" | "prompt" | "chat">("loading");
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
 
   useEffect(() => {
+    if (currentUser !== undefined) {
+      setVisibility(currentUser?.role === "TENANT" ? "prompt" : "hidden");
+      return;
+    }
     fetch("/api/profile")
       .then((res) => (res.ok ? res.json() : null))
       .then((profile) => setVisibility(profile?.role === "TENANT" ? "prompt" : "hidden"));
-  }, []);
+  }, [currentUser]);
 
   async function startConversation() {
     setStarting(true);
@@ -38,7 +43,7 @@ export default function MessageButton({ listingId }: { listingId: string }) {
     return (
       <div>
         <p className="mb-2 text-sm font-semibold text-ink">Message the landlord</p>
-        <ChatPanel conversationId={conversationId} />
+        <ChatPanel conversationId={conversationId} currentUserId={currentUser?.id} />
       </div>
     );
   }
