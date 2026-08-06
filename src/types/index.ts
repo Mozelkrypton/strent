@@ -45,3 +45,8 @@ export type MessageDto = {
   createdAt: string;
   senderId: string;
 };
+
+/** Passed down from a server component that already resolved the session
+ * (e.g. via getServerSession), so client components don't each independently
+ * fetch /api/profile just to answer "who's signed in / what role are they". */
+export type CurrentUser = { id: string; role: "TENANT" | "LANDLORD" | "ADMIN" } | null;
