@@ -1,24 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { CurrentUser } from "@/types";
 
-export default function SaveButton({ listingId }: { listingId: string }) {
+export default function SaveButton({ listingId, currentUser }: { listingId: string; currentUser?: CurrentUser }) {
   const [status, setStatus] = useState<"loading" | "signed-out" | "not-tenant" | "saved" | "unsaved">("loading");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    async function resolveStatus(role: string | undefined) {
+      if (!role) return setStatus("signed-out");
+      if (role !== "TENANT") return setStatus("not-tenant");
+
+      const savedRes = await fetch("/api/saved");
+      const saved = savedRes.ok ? await savedRes.json() : [];
+      const isSaved = saved.some((s: { listingId: string }) => s.listingId === listingId);
+      setStatus(isSaved ? "saved" : "unsaved");
+    }
+
+    // Parent already resolved the session server-side — skip the redundant
+    // /api/profile round-trip entirely when it's been handed down.
+    if (currentUser !== undefined) {
+      resolveStatus(currentUser?.role);
+      return;
+    }
+
     fetch("/api/profile")
       .then((res) => (res.ok ? res.json() : null))
-      .then(async (profile) => {
-        if (!profile) return setStatus("signed-out");
-        if (profile.role !== "TENANT") return setStatus("not-tenant");
-
-        const savedRes = await fetch("/api/saved");
-        const saved = savedRes.ok ? await savedRes.json() : [];
-        const isSaved = saved.some((s: { listingId: string }) => s.listingId === listingId);
-        setStatus(isSaved ? "saved" : "unsaved");
-      });
-  }, [listingId]);
+      .then((profile) => resolveStatus(profile?.role));
+  }, [listingId, currentUser]);
 
   async function toggle() {
     if (status !== "saved" && status !== "unsaved") return;
