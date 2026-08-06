@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import TextField from "@/components/TextField";
 import Button from "@/components/Button";
+import type { CurrentUser } from "@/types";
 
 type BookingStatus = "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
 
@@ -13,7 +14,15 @@ const STATUS_COPY: Record<BookingStatus, string> = {
   COMPLETED: "Booking complete"
 };
 
-export default function BookingButton({ listingId, price }: { listingId: string; price: number }) {
+export default function BookingButton({
+  listingId,
+  price,
+  currentUser
+}: {
+  listingId: string;
+  price: number;
+  currentUser?: CurrentUser;
+}) {
   const [visibility, setVisibility] = useState<"loading" | "hidden" | "form" | "status">("loading");
   const [status, setStatus] = useState<BookingStatus | null>(null);
   const [moveInDate, setMoveInDate] = useState("");
@@ -21,25 +30,32 @@ export default function BookingButton({ listingId, price }: { listingId: string;
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    async function resolveVisibility(role: string | undefined) {
+      if (role !== "TENANT") return setVisibility("hidden");
+
+      const res = await fetch("/api/bookings");
+      const bookings = res.ok ? await res.json() : [];
+      const existing = bookings.find(
+        (b: { listing: { id: string }; status: BookingStatus }) =>
+          b.listing.id === listingId && b.status !== "CANCELLED"
+      );
+      if (existing) {
+        setStatus(existing.status);
+        setVisibility("status");
+      } else {
+        setVisibility("form");
+      }
+    }
+
+    if (currentUser !== undefined) {
+      resolveVisibility(currentUser?.role);
+      return;
+    }
+
     fetch("/api/profile")
       .then((res) => (res.ok ? res.json() : null))
-      .then(async (profile) => {
-        if (!profile || profile.role !== "TENANT") return setVisibility("hidden");
-
-        const res = await fetch("/api/bookings");
-        const bookings = res.ok ? await res.json() : [];
-        const existing = bookings.find(
-          (b: { listing: { id: string }; status: BookingStatus }) =>
-            b.listing.id === listingId && b.status !== "CANCELLED"
-        );
-        if (existing) {
-          setStatus(existing.status);
-          setVisibility("status");
-        } else {
-          setVisibility("form");
-        }
-      });
-  }, [listingId]);
+      .then((profile) => resolveVisibility(profile?.role));
+  }, [listingId, currentUser]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();

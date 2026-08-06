@@ -7,7 +7,8 @@ import ReviewsSection from "@/components/ReviewsSection";
 import SaveButton from "@/components/SaveButton";
 import BookingButton from "@/components/BookingButton";
 import MessageButton from "@/components/MessageButton";
-import type { ListingDetail } from "@/types";
+import { getServerSession } from "@/lib/security/serverSession";
+import type { ListingDetail, CurrentUser } from "@/types";
 
 async function getListing(id: string): Promise<ListingDetail | null> {
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
@@ -17,8 +18,10 @@ async function getListing(id: string): Promise<ListingDetail | null> {
 }
 
 export default async function ListingDetailPage({ params }: { params: { id: string } }) {
-  const listing = await getListing(params.id);
+  const [listing, session] = await Promise.all([getListing(params.id), getServerSession()]);
   if (!listing) notFound();
+
+  const currentUser: CurrentUser = session ? { id: session.user.id, role: session.user.role } : null;
 
   const [heroImage, ...restImages] = listing.images;
 
@@ -75,7 +78,7 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <SaveButton listingId={listing.id} />
+          <SaveButton listingId={listing.id} currentUser={currentUser} />
           <span className="rounded-full bg-primary-light px-3.5 py-1.5 text-sm font-semibold text-primary-dark">
             {listing.status === "AVAILABLE" ? "Available now" : listing.status}
           </span>
@@ -100,11 +103,11 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
       </div>
 
       <div className="mt-4 space-y-4">
-        <BookingButton listingId={listing.id} price={listing.price} />
-        <MessageButton listingId={listing.id} />
+        <BookingButton listingId={listing.id} price={listing.price} currentUser={currentUser} />
+        <MessageButton listingId={listing.id} currentUser={currentUser} />
       </div>
 
-      <ReviewsSection listingId={listing.id} ratings={listing.ratings} />
+      <ReviewsSection listingId={listing.id} ratings={listing.ratings} currentUser={currentUser} />
     </div>
   );
 }

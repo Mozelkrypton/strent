@@ -28,6 +28,13 @@ function MessagesInbox() {
   const selectedId = searchParams.get("c");
 
   const [rows, setRows] = useState<ConversationRow[] | null>(null);
+  const [myUserId, setMyUserId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    fetch("/api/profile")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((profile) => setMyUserId(profile?.id));
+  }, []);
 
   function load() {
     fetch("/api/conversations").then(async (res) => {
@@ -96,7 +103,7 @@ function MessagesInbox() {
                     {selected.listing.title}
                   </Link>
                 </div>
-                <ChatPanel conversationId={selected.id} />
+                <ChatPanel conversationId={selected.id} currentUserId={myUserId} />
               </div>
             ) : (
               <p className="text-sm text-mute">Select a conversation.</p>
