@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { MessageDto } from "@/types";
 
-export default function ChatPanel({ conversationId }: { conversationId: string }) {
+export default function ChatPanel({ conversationId, currentUserId }: { conversationId: string; currentUserId?: string }) {
   const [messages, setMessages] = useState<MessageDto[]>([]);
   const [draft, setDraft] = useState("");
-  const [myUserId, setMyUserId] = useState<string | null>(null);
+  const [myUserId, setMyUserId] = useState<string | null>(currentUserId ?? null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   async function loadMessages() {
@@ -15,10 +15,11 @@ export default function ChatPanel({ conversationId }: { conversationId: string }
   }
 
   useEffect(() => {
+    if (currentUserId) return; // already known — skip the redundant round-trip
     fetch("/api/profile")
       .then((res) => (res.ok ? res.json() : null))
       .then((profile) => setMyUserId(profile?.id ?? null));
-  }, []);
+  }, [currentUserId]);
 
   useEffect(() => {
     loadMessages();
