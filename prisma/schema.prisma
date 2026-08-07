@@ -240,6 +240,12 @@ model Message {
   readAt         DateTime?
   createdAt      DateTime     @default(now())
 
+  // "Delete for me" only — a userId in here means this message is hidden
+  // from that user's view. The other participant (and an admin resolving a
+  // dispute) still sees it in full; nothing is ever truly erased. This is
+  // what keeps messaging a reliable record of what was agreed.
+  deletedFor String[] @default([])
+
   @@index([conversationId, createdAt])
 }
 
