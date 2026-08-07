@@ -9,6 +9,7 @@ export default async function Navbar() {
   const token = cookies().get(SESSION_COOKIE)?.value;
   const session = token ? await sessionManager.validate(token) : null;
   const unreadCount = session ? await getUnreadMessageCount(session.user.id, session.user.role) : 0;
+  const role = session?.user.role;
 
   return (
     <header className="sticky top-0 z-30 border-b border-ink/5 bg-surface/80 backdrop-blur-md">
@@ -20,17 +21,17 @@ export default async function Navbar() {
           <span className="font-display text-xl font-extrabold tracking-tight text-ink">strent</span>
         </Link>
 
-        {/* House-hunting links — kept front and center on larger screens */}
+        {/* Full nav lives at lg+ only — below that, the hamburger is the single
+            source of truth, not a duplicate of what's shown here. */}
         <nav className="hidden items-center gap-6 text-sm font-medium text-ink lg:flex">
           <Link href="/" className="transition-colors hover:text-primary">
             Browse
           </Link>
-          <Link href="/?view=map" className="transition-colors hover:text-primary">
-            Map search
-          </Link>
-          <Link href="/dashboard" className="transition-colors hover:text-primary">
-            List a house
-          </Link>
+          {role !== "TENANT" && role !== "ADMIN" && (
+            <Link href="/dashboard" className="transition-colors hover:text-primary">
+              List a house
+            </Link>
+          )}
           <Link href="/how-it-works" className="transition-colors hover:text-primary">
             How it works
           </Link>
@@ -40,15 +41,15 @@ export default async function Navbar() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <div className="hidden items-center gap-4 text-sm font-medium text-ink sm:flex">
+          <div className="hidden items-center gap-4 text-sm font-medium text-ink lg:flex">
             {session ? (
               <>
-                {session.user.role === "ADMIN" && (
+                {role === "ADMIN" && (
                   <Link href="/admin" className="transition-colors hover:text-primary">
                     Admin
                   </Link>
                 )}
-                {session.user.role !== "ADMIN" && (
+                {role !== "ADMIN" && (
                   <Link href="/messages" className="relative transition-colors hover:text-primary">
                     Messages
                     {unreadCount > 0 && (
@@ -58,7 +59,7 @@ export default async function Navbar() {
                     )}
                   </Link>
                 )}
-                {session.user.role === "TENANT" && (
+                {role === "TENANT" && (
                   <>
                     <Link href="/cart" className="transition-colors hover:text-primary">
                       Saved
@@ -68,7 +69,7 @@ export default async function Navbar() {
                     </Link>
                   </>
                 )}
-                {session.user.role === "LANDLORD" && (
+                {role === "LANDLORD" && (
                   <Link href="/dashboard/bookings" className="transition-colors hover:text-primary">
                     Bookings
                   </Link>
@@ -87,12 +88,17 @@ export default async function Navbar() {
               </Link>
             )}
           </div>
-          <MoreMenu
-            signedIn={!!session}
-            firstName={session?.user.name.split(" ")[0]}
-            isTenant={session?.user.role === "TENANT"}
-            isLandlord={session?.user.role === "LANDLORD"}
-          />
+
+          {/* Mobile/tablet only — the inline nav above already covers lg+,
+              so this isn't a duplicate, it's the only nav below that breakpoint. */}
+          <div className="lg:hidden">
+            <MoreMenu
+              signedIn={!!session}
+              firstName={session?.user.name.split(" ")[0]}
+              isTenant={role === "TENANT"}
+              isLandlord={role === "LANDLORD"}
+            />
+          </div>
         </div>
       </div>
     </header>
