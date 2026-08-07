@@ -22,8 +22,9 @@ export async function GET(req: NextRequest) {
   }
 
   const messages = await prisma.message.findMany({
-    where: { conversationId },
-    orderBy: { createdAt: "asc" }
+    where: { conversationId, NOT: { deletedFor: { has: session.userId } } },
+    orderBy: { createdAt: "asc" },
+    select: { id: true, conversationId: true, senderId: true, content: true, readAt: true, createdAt: true }
   });
 
   // Mark the other person's messages as read now that this participant has
@@ -61,4 +62,35 @@ export async function POST(req: NextRequest) {
   });
 
   return NextResponse.json(message, { status: 201 });
+}
+
+// DELETE /api/messages?id=... — "delete for me" only. Hides this message
+// from the requester's own view; the other participant still sees it in
+// full, and nothing is ever actually erased from the database.
+export async function DELETE(req: NextRequest) {
+  const session = await getSessionUser(req);
+  if (!session) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+
+  const id = req.nextUrl.searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 });
+
+  const message = await prisma.message.findUnique({
+    where: { id },
+    select: { conversationId: true, deletedFor: true }
+  });
+  if (!message) return NextResponse.json({ error: "Message not found" }, { status: 404 });
+
+  const access = await checkConversationAccess(message.conversationId, session.userId, session.role === "ADMIN");
+  if (!access.ok) {
+    return NextResponse.json({ error: "Not your conversation" }, { status: 403 });
+  }
+
+  if (!message.deletedFor.includes(session.userId)) {
+    await prisma.message.update({
+      where: { id },
+      data: { deletedFor: { push: session.userId } }
+    });
+  }
+
+  return NextResponse.json({ ok: true });
 }
