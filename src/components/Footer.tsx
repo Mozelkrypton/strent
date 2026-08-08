@@ -13,7 +13,7 @@ export default function Footer() {
               <span className="font-display text-xl font-extrabold tracking-tight text-ink">strent</span>
             </Link>
             <p className="mt-3 max-w-xs text-sm text-mute">
-              Every house here has an owner behind it, not an agent&apos;s markup.
+              We have houses here of your choice find one and connect to&apos;the landlord.
             </p>
           </div>
 
