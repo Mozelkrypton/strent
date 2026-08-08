@@ -72,7 +72,7 @@ export default function ImageUploader({ onUploaded, context = "listing" }: Uploa
         }}
         className="cursor-pointer border-2 border-dashed border-ink p-6 text-center text-sm text-mute hover:border-clay hover:text-clay"
       >
-        Drag photos here, or click to choose files
+        Drag photos here or click to choose files
         <input
           ref={inputRef}
           type="file"
