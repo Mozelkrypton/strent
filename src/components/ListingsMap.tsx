@@ -70,7 +70,7 @@ export default function ListingsMap({ listings }: { listings: ListingSummary[] }
       <div ref={mapRef} className="h-96 w-full overflow-hidden rounded-2xl border border-ink/10 shadow-soft" />
       {unmappedCount > 0 && (
         <p className="mt-2 text-xs text-mute">
-          {unmappedCount} listing{unmappedCount === 1 ? "" : "s"} without a map pin isn&apos;t shown here — switch
+          {unmappedCount} listing{unmappedCount === 1 ? "" : "s"} without a map pin isn&apos;t shown here switch
           to grid view to see everything.
         </p>
       )}
