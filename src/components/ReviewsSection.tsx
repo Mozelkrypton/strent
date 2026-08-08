@@ -93,7 +93,7 @@ export default function ReviewsSection({
           ))}
         </div>
       ) : (
-        <p className="mt-3 text-sm text-mute">No reviews yet — be the first tenant to rate this house.</p>
+        <p className="mt-3 text-sm text-mute">No reviews yet be the first tenant to rate this house.</p>
       )}
 
       {canReview && (
@@ -116,7 +116,7 @@ export default function ReviewsSection({
             className="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm shadow-sm transition-all duration-150 ease-smooth focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
           />
           {error && <p className="text-sm text-danger">{error}</p>}
-          {saved && !error && <p className="text-sm text-primary-dark">Thanks — your review is live.</p>}
+          {saved && !error && <p className="text-sm text-primary-dark">Thanks for your review is live.</p>}
           <Button disabled={saving}>{saving ? "Saving…" : "Submit review"}</Button>
         </form>
       )}
