@@ -104,7 +104,7 @@ export default function ChatPanel({ conversationId, currentUserId }: { conversat
         })}
         {messages.length === 0 && (
           <p className="py-8 text-center text-sm text-mute">
-            No messages yet — say hello and ask about viewing, price, or availability.
+            No messages yet say hello and ask about viewing, price or availability.
           </p>
         )}
         <div ref={bottomRef} />
@@ -125,7 +125,7 @@ export default function ChatPanel({ conversationId, currentUserId }: { conversat
         </button>
       </div>
       <p className="border-t border-ink/5 px-4 py-1.5 text-center text-[11px] text-mute">
-        Messages can&apos;t be deleted for the other person — hiding only removes them from your own view.
+        Messages can&apos;t be deleted for the other person hiding only removes them from your own view.
       </p>
     </div>
   );
