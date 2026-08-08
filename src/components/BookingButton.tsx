@@ -86,7 +86,7 @@ export default function BookingButton({
       <div className="rounded-2xl bg-primary-light p-4 text-sm text-primary-dark">
         <p className="font-semibold">{STATUS_COPY[status]}</p>
         {status === "CONFIRMED" && (
-          <p className="mt-1 text-primary-dark/80">Payment collection isn&apos;t wired up yet — the landlord will confirm once paid.</p>
+          <p className="mt-1 text-primary-dark/80">Payment collection isn&apos;t wired up yet the landlord will confirm once paid.</p>
         )}
       </div>
     );
