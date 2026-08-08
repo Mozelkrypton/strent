@@ -13,7 +13,7 @@ export default function MapView({ latitude, longitude, label }: MapViewProps) {
   if (latitude == null || longitude == null) {
     return (
       <div className="flex h-64 w-full items-center justify-center rounded-2xl border border-ink/10 bg-mute/10 text-sm text-mute">
-        No map pin for this one yet — see the address above.
+        No map pin for this one yet see the address above.
       </div>
     );
   }
