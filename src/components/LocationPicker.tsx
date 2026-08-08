@@ -104,7 +104,7 @@ export default function LocationPicker({ onChange }: LocationPickerProps) {
 
       {mapStatus === "unavailable" ? (
         <p className="text-xs text-mute">
-          Map pin isn&apos;t set up for this deployment — the address above is all that&apos;s needed. A map
+          Map pin isn&apos;t set up for this deployment the address above is all that&apos;s needed. A map
           pin can be added later once Google Maps is configured.
         </p>
       ) : (
