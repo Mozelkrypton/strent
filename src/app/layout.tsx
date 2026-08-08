@@ -17,7 +17,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Strent — Find your next home",
+  title: "Strent Find your next home",
   description: "Search verified rentals and message landlords directly."
 };
 

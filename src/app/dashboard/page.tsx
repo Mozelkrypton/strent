@@ -23,7 +23,7 @@ export default async function DashboardPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-ink">Your properties</h1>
-          <p className="mt-1 text-sm text-mute">Manage buildings with multiple units, or list a standalone house.</p>
+          <p className="mt-1 text-sm text-mute">Manage buildings with multiple units or list a standalone house.</p>
         </div>
         <div className="flex gap-2">
           <Link
@@ -51,7 +51,7 @@ export default async function DashboardPage() {
         <div className="mt-8 rounded-3xl border border-dashed border-mute/30 bg-surface p-12 text-center shadow-sm">
           <p className="font-display text-lg font-semibold text-ink">Nothing listed yet</p>
           <p className="mt-1 text-mute">
-            Add a building if you manage several units, or list a single house if that&apos;s all you have.
+            Add a building if you manage several units or list a single house if that&apos;s all you have.
           </p>
         </div>
       ) : (
