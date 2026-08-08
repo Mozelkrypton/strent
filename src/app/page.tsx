@@ -23,8 +23,8 @@ export default async function HomePage({
         <div className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
           <Stamp className="text-sm" />
           <h1 className="mt-6 max-w-2xl font-display text-4xl font-extrabold leading-[1.1] tracking-tight text-ink sm:text-5xl">
-            Every house here has an owner behind it,
-            <span className="text-primary"> not an agent&apos;s markup.</span>
+            Find a house to rent today from,
+            <span className="text-primary"> our trusted agent&apos;s and communicate with them.</span>
           </h1>
           <p className="mt-4 max-w-lg text-lg text-mute">
             Real photos, real locations on the map and a direct line to message the landlord.
