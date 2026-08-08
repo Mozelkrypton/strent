@@ -27,7 +27,7 @@ export default async function HomePage({
             <span className="text-primary"> not an agent&apos;s markup.</span>
           </h1>
           <p className="mt-4 max-w-lg text-lg text-mute">
-            Real photos, real locations on the map, and a direct line to message the landlord.
+            Real photos, real locations on the map and a direct line to message the landlord.
           </p>
         </div>
       </div>
